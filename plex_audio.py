@@ -16,8 +16,8 @@ PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). 
 ## Classes
 ###################################################################################################
  
-""" Container class that stores internal & external subtitles for a MediaPart. """
 class OrganizedStreams:
+    """ Container class that stores internal & external subtitles for a MediaPart. """
 
     def __init__(self, mediaPart):
     
