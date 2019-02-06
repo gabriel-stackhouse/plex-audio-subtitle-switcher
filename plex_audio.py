@@ -19,12 +19,24 @@ PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). 
 ###################################################################################################
  
 class OrganizedStreams:
-    """ Container class that stores internal & external subtitles for a MediaPart. """
+    """ Container class that stores internal & external subtitles for a MediaPart. 
+    
+    Attributes:
+        part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
+        audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams 
+            in MediaPart
+        subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
+            SubtitleStreams in MediaPart
+        internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
+            that are located in the MediaPart internally
+        externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
+            that are located in the MediaPart externally
+    """
 
     def __init__(self, mediaPart):
     
         # Store all streams
-        self.episodePart = mediaPart
+        self.part = mediaPart
         self.audioStreams = mediaPart.audioStreams()
         self.subtitleStreams = mediaPart.subtitleStreams()
         
@@ -38,10 +50,13 @@ class OrganizedStreams:
                 self.externalSubs.append(stream)
                 
     def allStreams(self):
+        """ Return a list of all :class:`~plexapi.media.AudioStream` and 
+            :class:`~plexapi.media.SubtitleStream`> in MediaPart."""
         return self.audioStreams + self.subtitleStreams
     
     def getIndexFromStream(self, givenStream):
-        """ Return index of given audio or subtitle stream """
+        """ Return index of given :class:`~plexapi.media.AudioStream` or 
+            :class:`~plexapi.media.SubtitleStream`. """
         streams = self.allStreams()
         count = 1
         for stream in streams:
@@ -51,16 +66,21 @@ class OrganizedStreams:
         raise Exception("AudioStream or SubtitleStream not found.")
         
     def getStreamFromIndex(self, givenIndex):
-        """ Return AudioStream or SubtitleStream from a given index """
+        """ Return :class:`~plexapi.media.AudioStream` or 
+            :class:`~plexapi.media.SubtitleStream` from a given index """
         streams = self.allStreams()
         if givenIndex > len(streams) or givenIndex < 1:
             raise IndexError("Given index is out of range.")
         return streams[givenIndex - 1]
         
     def indexIsAudioStream(self, givenIndex):
+        """ Return True if givenIndex is the index of an :class:`~plexapi.media.AudioStream`,
+            False otherwise. """
         return givenIndex > 0 and givenIndex <= len(self.audioStreams)
         
     def indexIsSubStream(self, givenIndex):
+        """ Return True if givenIndex is the index of a :class:`~plexapi.media.SubtitleStream`,
+            False otherwise. """
         return givenIndex > len(self.audioStreams) and givenIndex <= \
             len(self.audioStreams) + len(self.subtitleStreams)
 
@@ -385,7 +405,7 @@ while displayingEpisodes == True:
         
 # Get audio and subtitle streams of episode
 episodePart = episode.media[0].parts[0]
-streams = OrganizedStreams(episodePart)
+episodeStreams = OrganizedStreams(episodePart)
 
 # Get and validate index of audio stream from user
 audioIndex = None
@@ -400,7 +420,7 @@ if adjustAudio == 'y':
         audioIndex = getNumFromUser("Choose the number corresponding to the audio track you'd like to switch to: ")
         
         # Validate index
-        if streams.indexIsAudioStream(audioIndex):
+        if episodeStreams.indexIsAudioStream(audioIndex):
             isAudioStream = True
         else:
             print("Error: Number does not correspond to an audio track.")
@@ -434,7 +454,7 @@ if adjustSubtitles == 'y':
             else:
                 
                 # Validate
-                if streams.indexIsSubStream(subIndex) == True:
+                if episodeStreams.indexIsSubStream(subIndex) == True:
                     isSubtitleStream = True
                 else:
                     print("Error: Number does not correspond to a subtitle track.")
@@ -444,9 +464,10 @@ if adjustAudio == 'y':
 
     # TODO - change to api call when PR gets merged
     
+    newAudio = episodeStreams.getStreamFromIndex(audioIndex)
+    
     # Build URL 
-    url = "/library/parts/%d?audioStreamID=%d&allParts=1" % (streams.episodePart.id, 
-        streams.getStreamFromIndex(audioIndex).id)
+    url = "/library/parts/%d?audioStreamID=%d&allParts=1" % (episodePart.id, newAudio.id)
     
     # Send server query
     plex.query(url, method=plex._session.put)
@@ -455,11 +476,10 @@ if adjustAudio == 'y':
 if adjustSubtitles == 'y':
     
     if subIndex == 0:
-        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (streams.episodePart.id, 0)
+        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (episodePart.id, 0)
     else:
-        # Build URL 
-        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (streams.episodePart.id, 
-            streams.getStreamFromIndex(subIndex).id)
+        newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
+        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (episodePart.id, newSubtitle.id)
     
     # Send server query
     plex.query(url, method=plex._session.put)
