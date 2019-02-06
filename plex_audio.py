@@ -4,12 +4,14 @@ from plexapi.client import PlexClient
 from plexapi.exceptions import NotFound
 from plexapi.exceptions import BadRequest
 import getpass
+import sys
+import requests
 
 ###################################################################################################
 ## Plex Connection Info (Optional - will prompt for info if left blank)
 ###################################################################################################
 
-PLEX_URL='http://192.168.1.50:32400'            # URL to Plex server (optional). Ex. http://192.168.1.50:32400
+PLEX_URL='https://192.168.1.50:32400'            # URL to Plex server (optional). Ex. http://192.168.1.50:32400
 PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
@@ -212,10 +214,13 @@ def signIn():
                 PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
             print("Signing in...")
             try:
-                plex = PlexServer(PLEX_URL, PLEX_TOKEN)
+                requests.packages.urllib3.disable_warnings()
+                session = requests.Session()
+                session.verify = False
+                plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
             except:
                 print("Error: Connection failed. Is your login info correct?")
-                continue
+                sys.exit()
             account = plex.myPlexAccount()
             isSignedIn = True
 
