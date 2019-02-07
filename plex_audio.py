@@ -42,7 +42,8 @@ class AudioStreamInfo:
         self.title = audioStream.title
         
 class OrganizedStreams:
-    """ Container class that stores internal & external subtitles for a MediaPart. 
+    """ Container class that stores AudioStreams and SubtitleStreams while allowing for
+        additional organizational functionality.
     
     Attributes:
         audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams 
