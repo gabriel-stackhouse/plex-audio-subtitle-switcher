@@ -596,7 +596,6 @@ for seasonNum in seasonsToModify:   # Each season
                 newAudio = matchAudio(part, audioTemplate)
                 if newAudio:
                     part.setDefaultAudioStream(newAudio)
-                    print("GOT HERE")
         
             # TODO - set subtitle settings for MediaPart
             if adjustSubtitles == 'y':
