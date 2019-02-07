@@ -17,22 +17,44 @@ PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). 
 ###################################################################################################
 ## Classes
 ###################################################################################################
- 
+
+class AudioStreamInfo:
+    """ Container class to hold info about an AudioStream
+    
+    Attributes:
+        allStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` in combined
+            AudioStream + SubtitleStream list.
+        audioChannelLayout (str): Audio channel layout (ex: 5.1(side)).
+        audioStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` 
+            in MediaPart.audioStreams()
+        codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
+        languageCode (str): Ascii code for language (ex: eng, tha).
+        title (str): Title of the audio stream.
+    """
+    def __init__(self, audioStream, audioStreamsIndex):
+        
+        # Initialize variables
+        self.allStreamsIndex = audioStreamsIndex
+        self.audioChannelLayout = audioStream.audioChannelLayout
+        self.audioStreamsIndex = audioStreamsIndex
+        self.codec = audioStream.codec
+        self.languageCode = audioStream.languageCode
+        self.title = audioStream.title
+        
 class OrganizedStreams:
     """ Container class that stores internal & external subtitles for a MediaPart. 
     
     Attributes:
-        part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
         audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams 
             in MediaPart
-        subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
-            SubtitleStreams in MediaPart
-        internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
-            that are located in the MediaPart internally
         externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
             that are located in the MediaPart externally
+        internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
+            that are located in the MediaPart internally
+        part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
+        subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
+            SubtitleStreams in MediaPart
     """
-
     def __init__(self, mediaPart):
     
         # Store all streams
