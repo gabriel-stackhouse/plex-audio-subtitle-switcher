@@ -384,8 +384,9 @@ printStreams(episode)
 
 # Display settings for another episode?
 displayingEpisodes = True
-while displayingEpisodes == True:
+while displayingEpisodes == True:   # Continuously display episodes until user chooses not to
 
+    # Display another episode?
     displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
     if displayEpisode == 'y':
         
@@ -400,14 +401,15 @@ while displayingEpisodes == True:
             print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, show.title))
         else:
             printStreams(episode)
-    else:
+    
+    else:   # User done displaying episodes
         displayingEpisodes = False
         
 # Get audio and subtitle streams of episode
-episodePart = episode.media[0].parts[0]
+episodePart = episode.media[0].parts[0]     # The episode file
 episodeStreams = OrganizedStreams(episodePart)
 
-# Get and validate index of audio stream from user
+# Get index of audio stream from user
 audioIndex = None
 adjustAudio = getYesOrNoFromUser("Do you want to switch audio tracks? [Y/n]: ")
 if adjustAudio == 'y':
@@ -417,7 +419,7 @@ if adjustAudio == 'y':
     while isAudioStream == False:
         
         # Get index from user
-        audioIndex = getNumFromUser("Choose the number corresponding to the audio track you'd like to switch to: ")
+        audioIndex = getNumFromUser("Choose the number for the audio track you'd like to switch to: ")
         
         # Validate index
         if episodeStreams.indexIsAudioStream(audioIndex):
@@ -425,7 +427,7 @@ if adjustAudio == 'y':
         else:
             print("Error: Number does not correspond to an audio track.")
 
-# Get and validate index of subtitle stream from user
+# Get index of subtitle stream from user
 subIndex = None
 adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
 if adjustSubtitles == 'y':
@@ -435,8 +437,8 @@ if adjustSubtitles == 'y':
     while isSubtitleStream == False:
         
         # Get sub index from user
-        givenSubIndex = input("Choose the number corresponding to the subtitle track you'd like " +
-            "to switch to (Leave blank to disable subtitles): ").lower()
+        givenSubIndex = input("Choose the number for the subtitle track you'd like " +
+            "to switch to, or leave blank to disable subtitles: ").lower()
         
         # If left blank, subtitles are disabled (0 index)
         if givenSubIndex == "":
@@ -461,28 +463,18 @@ if adjustSubtitles == 'y':
 
 # Adjust audio
 if adjustAudio == 'y':
-
-    # TODO - change to api call when PR gets merged
     
     newAudio = episodeStreams.getStreamFromIndex(audioIndex)
-    
-    # Build URL 
-    url = "/library/parts/%d?audioStreamID=%d&allParts=1" % (episodePart.id, newAudio.id)
-    
-    # Send server query
-    plex.query(url, method=plex._session.put)
+    episodePart.setDefaultAudioStream(newAudio)
     
 # Adjust subtitles
 if adjustSubtitles == 'y':
     
     if subIndex == 0:
-        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (episodePart.id, 0)
+        episodePart.resetDefaultSubtitleStream()
     else:
         newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
-        url = "/library/parts/%d?subtitleStreamID=%d&allParts=1" % (episodePart.id, newSubtitle.id)
-    
-    # Send server query
-    plex.query(url, method=plex._session.put)
+        episodePart.setDefaultSubtitleStream(newSubtitle)
     
 print("Sent queries!")
         
