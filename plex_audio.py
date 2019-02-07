@@ -11,7 +11,7 @@ import requests
 ## Plex Connection Info (Optional - will prompt for info if left blank)
 ###################################################################################################
 
-PLEX_URL='https://192.168.1.50:32400'            # URL to Plex server (optional). Ex. http://192.168.1.50:32400
+PLEX_URL='https://192.168.1.50:32400'            # URL to Plex server (optional). Ex. https://192.168.1.50:32400
 PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
@@ -21,15 +21,15 @@ PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). 
 class AudioStreamInfo:
     """ Container class to hold info about an AudioStream
     
-    Attributes:
-        allStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` in combined
-            AudioStream + SubtitleStream list.
-        audioChannelLayout (str): Audio channel layout (ex: 5.1(side)).
-        audioStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` 
-            in MediaPart.audioStreams()
-        codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
-        languageCode (str): Ascii code for language (ex: eng, tha).
-        title (str): Title of the audio stream.
+        Attributes:
+            allStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` in combined
+                AudioStream + SubtitleStream list.
+            audioChannelLayout (str): Audio channel layout (ex: 5.1(side)).
+            audioStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` 
+                in MediaPart.audioStreams()
+            codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
+            languageCode (str): Ascii code for language (ex: eng, tha).
+            title (str): Title of the audio stream.
     """
     def __init__(self, audioStream, audioStreamsIndex):
         
@@ -45,16 +45,16 @@ class OrganizedStreams:
     """ Container class that stores AudioStreams and SubtitleStreams while allowing for
         additional organizational functionality.
     
-    Attributes:
-        audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams 
-            in MediaPart
-        externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
-            that are located in the MediaPart externally
-        internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
-            that are located in the MediaPart internally
-        part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
-        subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
-            SubtitleStreams in MediaPart
+        Attributes:
+            audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams 
+                in MediaPart
+            externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
+                that are located in the MediaPart externally
+            internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
+                that are located in the MediaPart internally
+            part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
+            subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
+                SubtitleStreams in MediaPart
     """
     def __init__(self, mediaPart):
     
@@ -138,7 +138,7 @@ def getSeasonsFromUser(show):
                 seasons from.
     """
     allSeasonsValid = False
-    while allSeasonsValid == False:
+    while not allSeasonsValid:
     
         # Get seasons users has in library
         seasonNums = []
@@ -200,7 +200,7 @@ def getYesOrNoFromUser(prompt):
             prompt(str): The prompt the user will be given before receiving input.
     """
     isValidInput = False
-    while isValidInput == False:
+    while not isValidInput:
         givenInput = input(prompt).lower()
         if givenInput == 'y' or givenInput == 'n':
             isValidInput = True
@@ -304,7 +304,7 @@ def signIn():
         global PLEX_URL
         global PLEX_TOKEN
         isSignedIn = False
-        while isSignedIn == False:
+        while not isSignedIn:
             if PLEX_URL == '' or PLEX_TOKEN == '':
                 PLEX_URL = input("Input server URL [Ex. http://192.168.1.50:32400]: ")
                 PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
@@ -364,7 +364,7 @@ def signIn():
     # Not signing in locally, so connect to Plex server using MyPlex        
     else:
         isSignedIn = False
-        while isSignedIn == False:
+        while not isSignedIn:
         
             # Get login info from user
             username = input("Plex username: ")
@@ -396,7 +396,7 @@ plex = signIn()
 # Choose library
 allLibraries = plex.library.sections()
 gotLibrary = False
-while gotLibrary == False:  # Iterate until valid library is chosen
+while not gotLibrary:  # Iterate until valid library is chosen
 
     # Get library from user
     print("Which library is the show in? [", end="")
@@ -421,7 +421,7 @@ library = plex.library.section(givenLibrary.lower())    # Got valid library
 
 # Get show to adjust from user
 inLibrary = False
-while inLibrary == False:
+while not inLibrary:
     givenShow = input("Which show should we adjust? (Type 'list' to list all shows): ")
     
     # If 'list' is typed, print shows in library
@@ -466,7 +466,7 @@ printStreams(episode)
 
 # Display settings for another episode?
 displayingEpisodes = True
-while displayingEpisodes == True:   # Continuously display episodes until user chooses not to
+while displayingEpisodes:   # Continuously display episodes until user chooses not to
 
     # Display another episode?
     displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
@@ -488,9 +488,9 @@ while displayingEpisodes == True:   # Continuously display episodes until user c
         displayingEpisodes = False
 
         
-# Get audio and subtitle streams of episode
-episodePart = episode.media[0].parts[0]     # The episode file
-episodeStreams = OrganizedStreams(episodePart)
+# Get audio and subtitle streams of displayed episode
+episodePart = episode.media[0].parts[0]         # The episode file
+episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
 
 
 # Get index of new audio stream from user
@@ -500,7 +500,7 @@ if adjustAudio == 'y':
     isAudioStream = False
     
     # Begin validation loop
-    while isAudioStream == False:
+    while not isAudioStream:
         
         # Get index from user
         audioIndex = getNumFromUser("Choose the number for the audio track you'd like to switch to: ")
@@ -519,7 +519,7 @@ if adjustSubtitles == 'y':
     
     # Begin valiation loop
     isSubtitleStream = False
-    while isSubtitleStream == False:
+    while not isSubtitleStream:
         
         # Get sub index from user
         givenSubIndex = input("Choose the number for the subtitle track you'd like " +
