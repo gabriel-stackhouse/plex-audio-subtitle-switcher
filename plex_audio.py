@@ -382,7 +382,8 @@ def signIn():
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer` instance."""
     
     # Sign in locally or online?
-    localSignIn = getYesOrNoFromUser("Connect to server locally? (Must choose yes if signing in as managed user) [Y/n]: ")
+    localSignIn = getYesOrNoFromUser(
+        "Connect to server locally? (Must choose yes if signing in as managed user) [Y/n]: ")
 
     # Connect to Plex server
     if localSignIn == 'y':
@@ -408,7 +409,7 @@ def signIn():
             isSignedIn = True
 
         # Give option to sign in as Managed User if server has them
-        if account.subscriptionActive == True and account.homeSize > 1:
+        if account.subscriptionActive and account.homeSize > 1:
         
             # Sign in as managed user?
             useManagedUser = getYesOrNoFromUser("Sign in as managed user? [Y/n]: ")
@@ -419,12 +420,12 @@ def signIn():
                 # Get all home users
                 homeUsers = []
                 for user in account.users():
-                    if user.home == True:
+                    if user.home:
                         homeUsers.append(user.title)
             
                 # Which user?
                 isValidUser = False
-                while isValidUser == False:
+                while not isValidUser:
                     print("Managed user name [", end="")
                     firstUser = True
                     for user in homeUsers:
@@ -440,7 +441,7 @@ def signIn():
                         if user.lower() == givenManagedUser.lower():
                             isValidUser = True
                             break
-                    if isValidUser == False:
+                    if not isValidUser:
                         print("Error: User does not exist.")
                         
                 # Sign in with managed user
@@ -667,10 +668,11 @@ if adjustSubtitles == 'y':
         subIndex - len(episodeStreams.audioStreams))
     
     # Print result
-    #   TODO
+    printStreamSuccess(episode, newSubtitle)
    
 
 # Batch adjust audio & subtitle settings
+if adjustAudio == 'n' and adjustSubtitles == 'n': sys.exit()    # Don't bother entering loop if no adjustments will be made
 for seasonNum in seasonsToModify:    # Each season 
     season = show.season(int(seasonNum))
     
