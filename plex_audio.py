@@ -156,14 +156,16 @@ def getNumFromUser(prompt):
         Parameters:
             prompt(str): The prompt the user will be given before receiving input.
     """
-    while True:
+    isValidNum = False
+    while not isValidNum:
         givenNum = input(prompt)
         try:
             num = int(givenNum)
         except ValueError:
             print("Error: '%s' is not an integer." % (givenNum))
-            continue
-        return num
+        else:
+            isValidNum = True
+    return num
         
 def getSeasonsFromUser(show):
     """ Gets seasons of a show to be adjusted from the user, then checks if all
@@ -177,7 +179,7 @@ def getSeasonsFromUser(show):
     allSeasonsValid = False
     while not allSeasonsValid:
     
-        # Get seasons users has in library
+        # Get seasons user has in library
         seasonNums = []
         for season in show.seasons():
             if season.title == "Specials":
@@ -322,8 +324,7 @@ def matchSubtitles(episodePart, template):
     
         # If title and language code match, SubtitleStream automatically matches
         if (stream.title and stream.title == template.title and 
-                stream.languageCode == template.languageCode and
-                stream.forced == template.forced):
+                stream.languageCode == template.languageCode):
             return stream
             
         # Languages must be the same to even be considered for a match
@@ -445,7 +446,7 @@ def printSubtitles(streams, startIndex=1):
         count += 1
     return count
 
-def signIn():
+def signIn(PLEX_URL, PLEX_TOKEN):
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer` instance."""
     
     # Sign in locally or online?
@@ -456,12 +457,10 @@ def signIn():
     if localSignIn == 'y':
         
         # Connect to Plex server locally
-        global PLEX_URL
-        global PLEX_TOKEN
         isSignedIn = False
         while not isSignedIn:
             if PLEX_URL == '' or PLEX_TOKEN == '':
-                PLEX_URL = input("Input server URL [Ex. http://192.168.1.50:32400]: ")
+                PLEX_URL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
                 PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
             print("Signing in...")
             try:
@@ -469,11 +468,12 @@ def signIn():
                 session = requests.Session()
                 session.verify = False
                 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
+                account = plex.myPlexAccount()
+                isSignedIn = True
             except:
                 print("Error: Connection failed. Is your login info correct?")
-                sys.exit()
-            account = plex.myPlexAccount()
-            isSignedIn = True
+                PLEX_URL = ''
+                PLEX_TOKEN = ''
 
         # Give option to sign in as Managed User if server has them
         if account.subscriptionActive and account.homeSize > 1:
@@ -530,11 +530,10 @@ def signIn():
             print("Signing in (this may take awhile)...")
             try:
                 account = MyPlexAccount(username, password)
+                plex = account.resource(serverName).connect()
+                isSignedIn = True
             except:
                 print("Error: Login failed. Are your credentials correct?")
-                continue
-            plex = account.resource(serverName).connect(ssl=True)
-            isSignedIn = True
             
     # Signed in. Return server instance.
     print("Signed into server '%s'." % (plex.friendlyName))
@@ -545,7 +544,7 @@ def signIn():
 ###################################################################################################
 
 # Get Plex server instance
-plex = signIn()
+plex = signIn(PLEX_URL, PLEX_TOKEN)
 
 # Begin program loop
 settingStreams = True
@@ -559,13 +558,13 @@ while settingStreams:
         # Get library from user
         print("Which library is the show in? [", end="")
         isFirstLibrary = True
-        for lib in allLibraries:    # Display all TV library options
+        for lib in allLibraries:       # Display all TV library options
             if lib.type == "show" and isFirstLibrary == True:
                 print(lib.title, end="")
                 isFirstLibrary = False
             elif lib.type == "show":
                 print("|%s" % (lib.title), end="")
-        givenLibrary = input("]: ")
+        givenLibrary = input("]: ")    # Choose library
 
         # Check input 
         for lib in allLibraries:
@@ -606,7 +605,7 @@ while settingStreams:
     isFirstSeason = True
     i = 0
     for season in seasonsToModify:
-        if isFirstSeason == True:
+        if isFirstSeason:
             print(season, end="")
             isFirstSeason = False 
         else:
@@ -655,9 +654,9 @@ while settingStreams:
     audioIndex = None
     adjustAudio = getYesOrNoFromUser("Do you want to switch audio tracks? [Y/n]: ")
     if adjustAudio == 'y':
-        isAudioStream = False
         
         # Begin validation loop
+        isAudioStream = False
         while not isAudioStream:
             
             # Get index from user
@@ -672,6 +671,7 @@ while settingStreams:
                 
     # Get index of new subtitle stream from user
     subIndex = None
+    resetSubtitles = False
     adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
     if adjustSubtitles == 'y':
         
@@ -683,9 +683,9 @@ while settingStreams:
             givenSubIndex = input("Choose the number for the subtitle track you'd like " +
                 "to switch to, or leave blank to disable subtitles: ").lower()
             
-            # If left blank, subtitles are disabled (0 index)
+            # If left blank, subtitles will be disabled
             if givenSubIndex == "":
-                subIndex = 0
+                resetSubtitles = True
                 isSubtitleStream = True
             
             # Else, check if it's a valid subtitle stream
@@ -726,13 +726,13 @@ while settingStreams:
     # Adjust subtitles
     if adjustSubtitles == 'y':
         
-        # Set subtitle settings for chosen episode
-        if subIndex == 0:
+        # Reset subtitles if user chose to do so
+        if resetSubtitles:
         
             # Reset subtitles
             episodePart.resetDefaultSubtitleStream()
             printResetSubSuccess(episode)
-            
+
         else:
         
             # Set subtitle settings for the chosen episode
@@ -749,6 +749,7 @@ while settingStreams:
 
     # Batch adjust audio & subtitle settings
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
+    
         for seasonNum in seasonsToModify:    # Each season 
             season = show.season(int(seasonNum))
             
@@ -776,12 +777,12 @@ while settingStreams:
                             print("No audio matches found for '%s'" % episodeToString(episode))
                             
                     # Reset subtitles if user chose to
-                    if adjustSubtitles == 'y' and subIndex == 0:
+                    if adjustSubtitles == 'y' and resetSubtitles:
                         part.resetDefaultSubtitleStream()
                         printResetSubSuccess(episode)
                     
                     # Set subtitle settings for MediaPart
-                    elif adjustSubtitles == 'y' and subIndex > 0:
+                    elif adjustSubtitles == 'y':
                         newSubtitle = matchSubtitles(part, subtitleTemplate)
                         if newSubtitle:
                             
