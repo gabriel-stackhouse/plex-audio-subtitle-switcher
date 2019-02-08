@@ -548,8 +548,8 @@ def signIn():
 plex = signIn()
 
 # Begin program loop
-changingStreams = True
-while changingStreams:
+settingStreams = True
+while settingStreams:
 
     # Choose library
     allLibraries = plex.library.sections()
@@ -797,4 +797,4 @@ while changingStreams:
     # Completed!
     newShow = getYesOrNoFromUser("Audio & subtitle streams set! Modify another show? [Y/n]: ")
     if newShow == 'n':
-        changingStreams = False
+        settingStreams = False
