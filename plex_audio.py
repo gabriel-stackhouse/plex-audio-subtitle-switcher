@@ -208,29 +208,86 @@ def getYesOrNoFromUser(prompt):
             print("Error: Invalid input")
     return givenInput
     
-def matchAudio(episodePart, audioTemplate):
+def matchAudio(episodePart, template):
     """ Returns the :class:`~plexapi.media.AudioStream` from the given MediaPart that is
         the closest match to the given template.
         
         Parameters:
             episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose AudioStreams will
                 be parsed to find the closest match.
-            audioTemplate(AudioStreamInfo): Info of an AudioStream that will act as a template
+            template(AudioStreamInfo): Info of an AudioStream that will act as a template
                 for matching a stream from episodePart.
     """
-    return # TODO -- match AudioStream
     
-def matchSubtitles(episodePart, subtitleTemplate):
+    # Get episode streams
+    episodeStreams = OrganizedStreams(episodePart)
+    audioStreams = episodeStreams.audioStreams
+    
+    # Initialize variables
+    winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
+    winningScore = -1   # Score of AudioStream in the lead
+    curIndex = 1        # Current index being scored 
+    
+    for stream in audioStreams:
+        
+        # If title and language code match, AudioStream automatically matches
+        if (stream.title and stream.title == template.title and 
+                stream.languageCode == template.languageCode):
+            return stream
+            
+        # Languages must be the same to even be considered for a match
+        if stream.languageCode == template.languageCode:
+            
+            # Start scoring match
+            curScore = 0
+            
+            # Audio codec and channel layout
+            if (stream.codec == template.codec and 
+                    stream.audioChannelLayout == template.audioChannelLayout):
+                curScore += 1
+            
+            # Index in AudioStreams list
+            if curIndex == template.audioStreamsIndex:
+                curScore += 1
+                
+            # Check if AudioStream is winning
+            if curScore > winningScore:
+                winningScore = curScore
+                winningIndex = curIndex
+                
+        # Increment counter
+        curIndex += 1
+        
+    if winningScore >= 0:
+        return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
+    
+def matchSubtitles(episodePart, template):
     """ Returns the :class:`~plexapi.media.SubtitleStream` from the given MediaPart that is
         the closest match to the given template.
         
         Parameters:
             episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose AudioStreams will
                 be parsed to find the closest match.
-            subtitleTemplate(SubtitleStreamInfo): Info of a SubtitleStream that will act as a template
+            template(SubtitleStreamInfo): Info of a SubtitleStream that will act as a template
                 for matching a stream from episodePart.
     """
     return # TODO -- match SubtitleStream
+    
+def printAudioSuccess(episode, newAudio):
+    """ Prints audio set successfully.
+        
+        Parameters:
+            episode(:class:`~plexapi.video.Episode`): Episode in which audio was set.
+            newAudio(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
+    """
+    if newAudio.title:
+        descriptor = "'%s' " % newAudio.title
+    elif newAudio.language:
+        descriptor = "'%s' " % newAudio.language
+    else:
+        descriptor = ""
+    print("Set %saudio for '%s - %s'" % (descriptor,
+        episode.seasonEpisode.upper(), episode.title))
     
 def printStreams(episode):
     """ Given an episode, prints all AudioStreams and SubtitleStreams.
@@ -562,6 +619,9 @@ if adjustAudio == 'y':
     # Create template for matching future episodes
     audioTemplate = AudioStreamInfo(newAudio, audioIndex)
     
+    # Print result
+    printAudioSuccess(episode, newAudio)
+    
 # Adjust subtitles
 if adjustSubtitles == 'y':
     
@@ -574,31 +634,41 @@ if adjustSubtitles == 'y':
         
     # Create template for matching future episodes 
     #   TODO 
-print("Successfully set audio/subtitle settings for %s - '%s'" % (episode.seasonEpisode.upper(), episode.title))
+    
+    # Print result
+    #   TODO
    
 
-# TODO - batch adjust audio & subtitle settings
-for seasonNum in seasonsToModify:   # Each season 
+# Batch adjust audio & subtitle settings
+for seasonNum in seasonsToModify:    # Each season 
     season = show.season(int(seasonNum))
     
-    for episode in season.episodes():   # Each episode in each season
-        print(episode.seasonEpisode.upper())
+    for episode in season.episodes():    # Each episode in each season
+        episode.reload()
         
-        for part in episode.media[0].parts:     # Each MediaPart (file) for each episode
+        for part in episode.media[0].parts:    # Each MediaPart (file) for each episode
 
             # Skip re-adjusting file we already modified
             if part.id == episodePart.id:
-                print("\tSKIP THIS PART")
                 continue
                 
-            # TODO - set audio settings for MediaPart
-            print("\t%s" % part.file)
+            # Set audio settings for MediaPart
             if adjustAudio == 'y':
                 newAudio = matchAudio(part, audioTemplate)
                 if newAudio:
+                
+                    # input("Matched '%s - %s' with %s language." % (episode.seasonEpisode.upper(), episode.title, newAudio.languageCode)) # TODO -- remove
+                
+                    # Set audio as default
                     part.setDefaultAudioStream(newAudio)
-        
-            # TODO - set subtitle settings for MediaPart
+                    
+                    # Print result
+                    printAudioSuccess(episode, newAudio)
+                    
+                else:
+                    print("No audio matches found for '%s - %s'" % (episode.seasonEpisode.upper(), episode.title))
+                    
+            # TODO - Set subtitle settings for MediaPart
             if adjustSubtitles == 'y':
                 print("", end="")   # TODO -- remove
         
