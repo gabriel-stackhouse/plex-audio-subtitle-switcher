@@ -602,25 +602,31 @@ plex = signIn(PLEX_URL, PLEX_TOKEN)
 settingStreams = True
 while settingStreams:
 
+    # Get list of TV Show libraries
+    showLibraries = []
+    for lib in plex.library.sections():
+        if lib.type == "show":
+            showLibraries.append(lib.title)
+    
     # Choose library
-    allLibraries = plex.library.sections()
+    enableAutoComplete(showLibraries)   # Enable autocomplete functionality
     gotLibrary = False
     while not gotLibrary:  # Iterate until valid library is chosen
 
         # Get library from user
         print("Which library is the show in? [", end="")
         isFirstLibrary = True
-        for lib in allLibraries:       # Display all TV library options
-            if lib.type == "show" and isFirstLibrary == True:
-                print(lib.title, end="")
+        for lib in showLibraries:       # Display all TV library options
+            if isFirstLibrary:
+                print(lib, end="")
                 isFirstLibrary = False
-            elif lib.type == "show":
-                print("|%s" % (lib.title), end="")
+            else:
+                print("|%s" % (lib), end="")
         givenLibrary = input("]: ")    # Choose library
 
         # Check input 
-        for lib in allLibraries:
-            if lib.type == "show" and lib.title.lower() == givenLibrary.lower():
+        for lib in showLibraries:
+            if lib.lower() == givenLibrary.lower():
                 gotLibrary = True
                 break
         if gotLibrary == False:
@@ -633,7 +639,7 @@ while settingStreams:
     for show in library.search(libtype="show"):
         showTitles.append(show.title)
 
-        
+
     # Get show to modify from user
     enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
     inLibrary = False
