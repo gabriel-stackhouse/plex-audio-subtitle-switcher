@@ -580,12 +580,9 @@ while settingStreams:
     library = plex.library.section(givenLibrary.lower())    # Got valid library
 
     # Get list of shows from library
-    showsList = library.search(libtype="show")
     showTitles = []
-    i = 0
-    for show in showsList:
+    for show in library.search(libtype="show"):
         showTitles.append(show.title)
-        i += 1
     
     # Set up autocompletion
     readline.parse_and_bind("tab: complete")
