@@ -8,6 +8,10 @@ from plexapi.media import SubtitleStream
 import getpass
 import sys
 import requests
+try:
+    import readline
+except ImportError:
+    import pyreadline as readline
 
 ###################################################################################################
 ## Plex Connection Info (Optional - will prompt for info if left blank)
@@ -575,17 +579,40 @@ while settingStreams:
             print("Error: '%s' is not a TV library." % (givenLibrary))
     library = plex.library.section(givenLibrary.lower())    # Got valid library
 
+    # Get list of shows from library
+    showsList = library.search(libtype="show")
+    showTitles = []
+    i = 0
+    for show in showsList:
+        showTitles.append(show.title)
+        i += 1
+    
+    # Set up autocompletion
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer_delims("")
+    def complete(text, state):
+       # generate candidate completion list
+       if text == "":
+          matches = showTitles
+       else:
+          matches = [x for x in showTitles if x.lower().startswith(text.lower())]
 
-    # Get show to adjust from user
+       # return current completion match
+       if state > len(matches):
+          return None
+       else:
+          return matches[state]
+    readline.set_completer(complete)
+
+    # Get show to modify from user
     inLibrary = False
     while not inLibrary:
         givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
         
         # If 'list' is typed, print shows in library
         if givenShow.lower() == "list":
-            showsList = library.search(libtype="show")
-            for show in showsList:
-                print(show.title)
+            for show in showTitles:
+                print(show)
         
         # Otherwise, get show
         else:
@@ -594,6 +621,7 @@ while settingStreams:
                 inLibrary = True    # Found show if we got here
             except NotFound:
                 print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
+    readline.set_completer(None)    # Remove autocompletion
 
                 
     # Get seasons of show to modify from user
