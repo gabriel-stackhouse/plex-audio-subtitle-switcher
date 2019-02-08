@@ -143,6 +143,32 @@ class SubtitleStreamInfo:
 ## Helper Functions
 ###################################################################################################
 
+def disableAutoComplete():
+    """ Disables tab-autocomplete functionality in user input."""
+    readline.set_completer(None)
+
+def enableAutoComplete(matchList):
+    """ Enables tab-autocomplete functionality in user input.
+    
+        Parameters:
+            matchList(list<str>): List of strings that can be matched to.
+    """
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer_delims("")
+    def complete(text, state):
+       # generate candidate completion list
+       if text == "":
+          matches = matchList
+       else:
+          matches = [x for x in matchList if x.lower().startswith(text.lower())]
+
+       # return current completion match
+       if state > len(matches):
+          return None
+       else:
+          return matches[state]
+    readline.set_completer(complete)
+
 def episodeToString(episode):
     """ Returns a string representation of an episode in the following format:
         "SXXEXX - Title"
@@ -579,29 +605,15 @@ while settingStreams:
             print("Error: '%s' is not a TV library." % (givenLibrary))
     library = plex.library.section(givenLibrary.lower())    # Got valid library
 
+    
     # Get list of shows from library
     showTitles = []
     for show in library.search(libtype="show"):
         showTitles.append(show.title)
-    
-    # Set up autocompletion
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer_delims("")
-    def complete(text, state):
-       # generate candidate completion list
-       if text == "":
-          matches = showTitles
-       else:
-          matches = [x for x in showTitles if x.lower().startswith(text.lower())]
 
-       # return current completion match
-       if state > len(matches):
-          return None
-       else:
-          return matches[state]
-    readline.set_completer(complete)
-
+        
     # Get show to modify from user
+    enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
     inLibrary = False
     while not inLibrary:
         givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
@@ -618,7 +630,8 @@ while settingStreams:
                 inLibrary = True    # Found show if we got here
             except NotFound:
                 print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
-    readline.set_completer(None)    # Remove autocompletion
+                
+    disableAutoComplete()   # Disable autocomplete
 
                 
     # Get seasons of show to modify from user
