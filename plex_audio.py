@@ -3,6 +3,8 @@ from plexapi.myplex import MyPlexAccount
 from plexapi.client import PlexClient
 from plexapi.exceptions import NotFound
 from plexapi.exceptions import BadRequest
+from plexapi.media import AudioStream
+from plexapi.media import SubtitleStream
 import getpass
 import sys
 import requests
@@ -78,7 +80,7 @@ class OrganizedStreams:
         return self.audioStreams + self.subtitleStreams
     
     def getIndexFromStream(self, givenStream):
-        """ Return index of given :class:`~plexapi.media.AudioStream` or 
+        """ Return 1-index of given :class:`~plexapi.media.AudioStream` or 
             :class:`~plexapi.media.SubtitleStream`. """
         streams = self.allStreams()
         count = 1
@@ -90,7 +92,7 @@ class OrganizedStreams:
         
     def getStreamFromIndex(self, givenIndex):
         """ Return :class:`~plexapi.media.AudioStream` or 
-            :class:`~plexapi.media.SubtitleStream` from a given index """
+            :class:`~plexapi.media.SubtitleStream` from a given index (1-index) """
         streams = self.allStreams()
         if givenIndex > len(streams) or givenIndex < 1:
             raise IndexError("Given index is out of range.")
@@ -107,6 +109,31 @@ class OrganizedStreams:
             False otherwise. """
         return givenIndex > len(self.audioStreams) and givenIndex <= \
             len(self.audioStreams) + len(self.subtitleStreams)
+            
+class SubtitleStreamInfo:
+    """ Container class to hold info about a SubtitleStream
+    
+        Attributes:
+            allStreamsIndex (int): Index of this :class:`~plexapi.media.SubtitleStream` in combined
+                AudioStream + SubtitleStream list.
+            codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
+            forced (bool): True if stream is a forced subtitle.
+            languageCode (str): Ascii code for language (ex: eng, tha).
+            location (str): "Internal" if subtitle is embedded in the video, "External" if it is not.
+            subtitleStreamsIndex (int): Index of this :class:`~plexapi.media.SubtitleStream` 
+                in MediaPart.subtitleStreams().
+            title (str): Title of the subtitle stream.
+    """
+    def __init__(self, subtitleStream, allStreamsIndex, subtitleStreamsIndex):
+        
+        # Initialize variables
+        self.allStreamsIndex = allStreamsIndex
+        self.codec = subtitleStream.codec
+        self.forced = subtitleStream.forced
+        self.languageCode = subtitleStream.languageCode
+        self.location = "Internal" if subtitleStream.index >= 0 else "External"
+        self.subtitleStreamsIndex = subtitleStreamsIndex
+        self.title = subtitleStream.title
 
 ###################################################################################################
 ## Helper Functions
@@ -273,20 +300,24 @@ def matchSubtitles(episodePart, template):
     """
     return # TODO -- match SubtitleStream
     
-def printAudioSuccess(episode, newAudio):
-    """ Prints audio set successfully.
+def printStreamSuccess(episode, newStream):
+    """ Prints stream set successfully.
         
         Parameters:
             episode(:class:`~plexapi.video.Episode`): Episode in which audio was set.
-            newAudio(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
+            newStream(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
     """
-    if newAudio.title:
-        descriptor = "'%s' " % newAudio.title
-    elif newAudio.language:
-        descriptor = "'%s' " % newAudio.language
+    if newStream.title:
+        descriptor = "'%s' " % newStream.title
+    elif newStream.language:
+        descriptor = "'%s' " % newStream.languageCode
     else:
         descriptor = ""
-    print("Set %saudio for '%s - %s'" % (descriptor,
+    if isinstance(newStream, AudioStream):
+        streamType = "audio"
+    elif isinstance(newStream, SubtitleStream):
+        streamType = "subtitle"
+    print("Set %s %sfor '%s - %s'" % (streamType, descriptor,
         episode.seasonEpisode.upper(), episode.title))
     
 def printStreams(episode):
@@ -295,7 +326,6 @@ def printStreams(episode):
         Parameters:
             episode(:class:`~plexapi.video.Episode`): The episode whose MediaPartStreams will be printed.
     """
-    
     # Get audio & subtitle streams
     episode.reload()
     part = episode.media[0].parts[0]
@@ -620,7 +650,7 @@ if adjustAudio == 'y':
     audioTemplate = AudioStreamInfo(newAudio, audioIndex)
     
     # Print result
-    printAudioSuccess(episode, newAudio)
+    printStreamSuccess(episode, newAudio)
     
 # Adjust subtitles
 if adjustSubtitles == 'y':
@@ -633,7 +663,8 @@ if adjustSubtitles == 'y':
         episodePart.setDefaultSubtitleStream(newSubtitle)
         
     # Create template for matching future episodes 
-    #   TODO 
+    subtitleTemplate = SubtitleStreamInfo(newSubtitle, subIndex,
+        subIndex - len(episodeStreams.audioStreams))
     
     # Print result
     #   TODO
@@ -657,13 +688,11 @@ for seasonNum in seasonsToModify:    # Each season
                 newAudio = matchAudio(part, audioTemplate)
                 if newAudio:
                 
-                    # input("Matched '%s - %s' with %s language." % (episode.seasonEpisode.upper(), episode.title, newAudio.languageCode)) # TODO -- remove
-                
                     # Set audio as default
                     part.setDefaultAudioStream(newAudio)
                     
                     # Print result
-                    printAudioSuccess(episode, newAudio)
+                    printStreamSuccess(episode, newAudio)
                     
                 else:
                     print("No audio matches found for '%s - %s'" % (episode.seasonEpisode.upper(), episode.title))
