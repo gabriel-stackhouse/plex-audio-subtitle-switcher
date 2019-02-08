@@ -618,7 +618,7 @@ while changingStreams:
 
 
     # Print audio & subtitle streams for first episode 
-    episode = show.season(int(seasonsToModify[0])).episodes()[0]    # First episode (TODO -- fix season 0)
+    episode = show.season(int(seasonsToModify[0])).episodes()[0]
     printStreams(episode)
 
 
