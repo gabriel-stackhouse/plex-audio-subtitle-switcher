@@ -140,7 +140,7 @@ class SubtitleStreamInfo:
         self.title = subtitleStream.title
 
 ###################################################################################################
-## Helper Functions
+## Functions
 ###################################################################################################
 
 def disableAutoComplete():
@@ -156,6 +156,7 @@ def enableAutoComplete(matchList):
     readline.parse_and_bind("tab: complete")
     readline.set_completer_delims("")
     def complete(text, state):
+       """ Credit Chris Siebenmann: https://bit.ly/2E0pNDB"""
        # generate candidate completion list
        if text == "":
           matches = matchList
@@ -399,25 +400,6 @@ def printResetSubSuccess(episode):
     """
     print("Reset subtitles for '%s'" % episodeToString(episode))
     
-def printSuccess(episode, newStream):
-    """ Prints stream set successfully.
-        
-        Parameters:
-            episode(:class:`~plexapi.video.Episode`): Episode in which audio was set.
-            newStream(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
-    """
-    if newStream.title:
-        descriptor = "'%s' " % newStream.title
-    elif newStream.language:
-        descriptor = "'%s' " % newStream.languageCode
-    else:
-        descriptor = ""
-    if isinstance(newStream, AudioStream):
-        streamType = "audio"
-    elif isinstance(newStream, SubtitleStream):
-        streamType = "subtitle"
-    print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
-    
 def printStreams(episode):
     """ Given an episode, prints all AudioStreams and SubtitleStreams.
     
@@ -475,6 +457,46 @@ def printSubtitles(streams, startIndex=1):
             count, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
         count += 1
     return count
+    
+def printSuccess(episode, newStream):
+    """ Prints stream set successfully.
+        
+        Parameters:
+            episode(:class:`~plexapi.video.Episode`): Episode in which audio was set.
+            newStream(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
+    """
+    if newStream.title:
+        descriptor = "'%s' " % newStream.title
+    elif newStream.language:
+        descriptor = "'%s' " % newStream.languageCode
+    else:
+        descriptor = ""
+    if isinstance(newStream, AudioStream):
+        streamType = "audio"
+    elif isinstance(newStream, SubtitleStream):
+        streamType = "subtitle"
+    print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
+    
+def seasonsToString(seasons):
+    """ Given list of season numbers, returns string of seasons ina readable format.
+        Ex: "1, 2, 4, and 5"
+    
+        Parameters:
+            seasons(list<int>): List of season numbers.
+    """
+    seasonString=""
+    isFirstSeason = True
+    i = 0
+    for s in seasons:
+        if isFirstSeason:
+            seasonString += s
+            isFirstSeason = False 
+        else:
+            # Who gave the grammar nazi a software degree?
+            seasonString += "%s %s%s" % ("," if len(seasons) > 2 else "", 
+                "and " if i == len(seasons) - 1 else "", s)
+        i += 1
+    return seasonString
 
 def signIn(PLEX_URL, PLEX_TOKEN):
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer` instance."""
@@ -639,19 +661,8 @@ while settingStreams:
 
 
     # Print all seasons we'll modify
-    print("Adjusting audio & subtitle settings for Season%s " % ("s" if len(seasonsToModify) > 1 else ""), end="")
-    isFirstSeason = True
-    i = 0
-    for season in seasonsToModify:
-        if isFirstSeason:
-            print(season, end="")
-            isFirstSeason = False 
-        else:
-            # Who gave the grammar nazi a software degree?
-            print("%s %s%s" % ("," if len(seasonsToModify) > 2 else "", 
-                "and " if i == len(seasonsToModify) - 1 else "", season), end="")
-        i+=1
-    print(" of '%s'." % (show.title))
+    print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % ("s" if len(seasonsToModify) > 1 else "",
+        seasonsToString(seasonsToModify), show.title))
 
 
     # Print audio & subtitle streams for first episode 
@@ -746,9 +757,10 @@ while settingStreams:
     # Final prompt
     #   TODO -- Show user seasons that will be adjusted and streams they will be matched to.
     #           Then ask if they'd like to continue.
+    
 
                         
-    # Adjust audio
+    # Set audio/subtitle streams for highlighted episode
     if adjustAudio == 'y':
         
         # Set audio settings for chosen episode 
@@ -785,7 +797,7 @@ while settingStreams:
             printSuccess(episode, newSubtitle)
 
 
-    # Batch adjust audio & subtitle settings
+    # Bat set audio/subtitle streams for all chosen episodes
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
     
         for seasonNum in seasonsToModify:    # Each season 
@@ -798,19 +810,20 @@ while settingStreams:
 
                     # Skip re-adjusting file we already modified
                     if part.id == episodePart.id:
-                        continue
+                        continue    # Next file
                         
                     # Set audio settings for MediaPart
                     if adjustAudio == 'y':
+                    
+                        # Get closest match from template audio
                         newAudio = matchAudio(part, audioTemplate)
-                        if newAudio:
                         
+                        if newAudio:
                             # Set audio as default
                             part.setDefaultAudioStream(newAudio)
                             
                             # Print result
                             printSuccess(episode, newAudio)
-                            
                         else:
                             print("No audio matches found for '%s'" % episodeToString(episode))
                             
@@ -821,15 +834,16 @@ while settingStreams:
                     
                     # Set subtitle settings for MediaPart
                     elif adjustSubtitles == 'y':
+                    
+                        # Get closest match from template subtitle
                         newSubtitle = matchSubtitles(part, subtitleTemplate)
+                        
                         if newSubtitle:
-                            
                             # Set subtitle as default
                             part.setDefaultSubtitleStream(newSubtitle)
                             
                             # Print result
                             printSuccess(episode, newSubtitle)
-                            
                         else:
                             print("No subtitle matches found for '%s'" % episodeToString(episode))
     
