@@ -489,7 +489,7 @@ def seasonsToString(seasons):
     i = 0
     for s in seasons:
         if isFirstSeason:
-            seasonString += s
+            seasonString += str(s)
             isFirstSeason = False 
         else:
             # Who gave the grammar nazi a software degree?
@@ -568,7 +568,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 managedUser = account.user(givenManagedUser)
                 plex = PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier))
 
-    # Not signing in locally, so connect to Plex server using MyPlex        
+    # Not signing in locally, so connect to Plex server using MyPlex  
     else:
         isSignedIn = False
         while not isSignedIn:
@@ -609,7 +609,7 @@ while settingStreams:
             showLibraries.append(lib.title)
     
     # Choose library
-    enableAutoComplete(showLibraries)   # Enable autocomplete functionality
+    enableAutoComplete(showLibraries)   # Enable tab autocomplete
     gotLibrary = False
     while not gotLibrary:  # Iterate until valid library is chosen
 
