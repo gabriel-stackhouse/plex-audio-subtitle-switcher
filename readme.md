@@ -18,9 +18,11 @@ Installing Dependencies
 [tqdm](https://github.com/tqdm/tqdm), websocket, and if running on Windows 
 [pyreadline](https://github.com/pyreadline/pyreadline),
 
-Install on Windows: 
+Install on Windows:
+.. code-block:: python
     pip install python-plexapi tqdm websocket pyreadline
 Or on Linux:
+.. code-block:: python
     pip install python-plexapi tqdm websocket
 
 Running the Script
