@@ -15,7 +15,7 @@ Installing Dependencies
 -----------------------
 **Dependencies:** Python 3, 
 [python-plexapi](https://github.com/pkkid/python-plexapi), 
-[tqdm](https://github.com/tqdm/tqdm), websocket, and if running on Windows 
+[tqdm](https://github.com/tqdm/tqdm), websocket, and if running on Windows, 
 [pyreadline](https://github.com/pyreadline/pyreadline).
 
 Install on Windows:
