@@ -123,7 +123,8 @@ class SubtitleStreamInfo:
             codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
             forced (bool): True if stream is a forced subtitle.
             languageCode (str): Ascii code for language (ex: eng, tha).
-            location (str): "Internal" if subtitle is embedded in the video, "External" if it is not.
+            location (str): "Internal" if subtitle is embedded in the video, "External" if it is 
+                not.
             subtitleStreamsIndex (int): Index of this :class:`~plexapi.media.SubtitleStream` 
                 in MediaPart.subtitleStreams().
             title (str): Title of the subtitle stream.
@@ -179,6 +180,30 @@ def episodeToString(episode):
                 represented with a string.
     """
     return "%s - %s" % (episode.seasonEpisode.upper(), episode.title)
+    
+def getEpisode(show, title=None, season=None, episode=None):
+    """ Temporary until plexapi function is fixed.
+        Find a episode using a title or season and episode.
+
+       Parameters:
+            show(:class:`~plexapi.video.Show`): Show to get an episode from.
+            title (str): Title of the episode to return
+            season (int): Season number (default:None; required if title not specified).
+            episode (int): Episode number (default:None; required if title not specified).
+
+       Raises:
+            :class:`plexapi.exceptions.BadRequest`: If season and episode is missing.
+            :class:`plexapi.exceptions.NotFound`: If the episode is missing.
+    """
+    if title:
+        key = '/library/metadata/%s/allLeaves' % show.ratingKey
+        return show.fetchItem(key, title__iexact=title)
+    elif season is not None and episode:
+        results = [i for i in show.episodes() if i.seasonNumber == season and i.index == episode]
+        if results:
+            return results[0]
+        raise NotFound('Couldnt find %s S%s E%s' % (show.title, season, episode))
+    raise BadRequest('Missing argument: title or season and episode are required')
     
 def getNumFromUser(prompt):
     """ Prompts for an integer from the user, only returning when a valid integer
@@ -257,7 +282,9 @@ def getSeasonsFromUser(show):
             if curSeasonIsValid == False:
                 print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
                 break
-        if curSeasonIsValid == True:    # If we got through all seasons successfully, they are all valid
+                
+        # If we got through all seasons successfully, they are all valid
+        if curSeasonIsValid == True:
             allSeasonsValid = True
     
     # Return valid seasons to modify
@@ -404,7 +431,8 @@ def printStreams(episode):
     """ Given an episode, prints all AudioStreams and SubtitleStreams.
     
         Parameters:
-            episode(:class:`~plexapi.video.Episode`): The episode whose MediaPartStreams will be printed.
+            episode(:class:`~plexapi.video.Episode`): The episode whose MediaPartStreams will be 
+                printed.
     """
     # Get audio & subtitle streams
     episode.reload()
@@ -413,14 +441,16 @@ def printStreams(episode):
         
     # Print audio streams
     count = 1
-    print("\nAudio & subtitle settings for '%s %s':\n" % (episode.show().title, episodeToString(episode)))
+    print("\nAudio & subtitle settings for '%s %s':\n" % (episode.show().title, 
+        episodeToString(episode)))
     print("Audio:\n")
     for stream in streams.audioStreams:
         selected = ""
         if stream.selected == True:
             selected = "*"
         print("\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-            count, selected, stream.title, stream.languageCode, stream.codec, stream.audioChannelLayout))
+            count, selected, stream.title, stream.languageCode, stream.codec, 
+            stream.audioChannelLayout))
         count += 1
     print("\n\t* = Currently enabled track.\n")
     
@@ -499,7 +529,9 @@ def seasonsToString(seasons):
     return seasonString
 
 def signIn(PLEX_URL, PLEX_TOKEN):
-    """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer` instance."""
+    """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer` 
+        instance.
+    """
     
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
@@ -667,12 +699,15 @@ while settingStreams:
 
 
     # Print all seasons we'll modify
-    print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % ("s" if len(seasonsToModify) > 1 else "",
-        seasonsToString(seasonsToModify), show.title))
+    print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
+        "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
 
 
     # Print audio & subtitle streams for first episode 
-    episode = show.season(int(seasonsToModify[0])).episodes()[0]
+    if int(seasonsToModify[0]) == 0:
+        episode = show.season('Specials').episodes()[0]
+    else:
+        episode = show.season(int(seasonsToModify[0])).episodes()[0]
     printStreams(episode)
 
 
@@ -690,9 +725,11 @@ while settingStreams:
             
             # Print episode settings
             try:
-                episode = show.episode(season=seasonNum, episode=episodeNum)
-            except (BadRequest, NotFound) :
-                print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, show.title))
+                # TODO - switch to API call when function is fixed 
+                episode = getEpisode(show, season=seasonNum, episode=episodeNum)
+            except (BadRequest, NotFound):
+                print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, 
+                    show.title))
             else:
                 printStreams(episode)
         
@@ -806,8 +843,11 @@ while settingStreams:
     # Bat set audio/subtitle streams for all chosen episodes
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
     
-        for seasonNum in seasonsToModify:    # Each season 
-            season = show.season(int(seasonNum))
+        for seasonNum in seasonsToModify:    # Each season
+            if int(seasonNum) == 0:
+                season = show.season('Specials')
+            else:
+                season = show.season(int(seasonNum))
             
             for episode in season.episodes():    # Each episode in each season
                 episode.reload()
