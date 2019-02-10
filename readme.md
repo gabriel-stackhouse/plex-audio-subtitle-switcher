@@ -32,8 +32,9 @@ Running the Script
 **Note:** This script assumes that the chosen episodes, and the audio and subtitle tracks within 
 them, are relatively similar. Results may vary if modifying episodes from a wide range of sources.
 
-0. *Optional:* Open plex_audio.py with a text editor and insert your Plex URL and API token in the 
-spots indicated in the file. You will be prompted for this information if this step is not completed.
+0. **Optional:** Open plex_audio.py with a text editor and insert your Plex URL and API token in 
+the spots indicated in the file. You will be prompted for this information if this step is not 
+completed.
 
 1. Run the script.  Windows: ```python ./plex_audio.py``` or Linux: ```python3 ./plex_audio.py```
 
@@ -46,6 +47,13 @@ How it Works
 ------------
 TODO -- fill out this section.
 
-Planned Features
-----------------
-TODO -- fill out this section.
+Planned Feature Additions
+-------------------------
+A list of planned feature upgrades, in order of priority:
+
+- [ ] Watcher to watch for new episodes of previously modified shows, switching their audio and 
+subtitle tracks on the fly.
+
+- [ ] Command-line arguments, so advanced users can bypass the prompts.
+
+- [ ] Customizable matching conditions (if there is demand).
