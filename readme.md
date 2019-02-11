@@ -16,7 +16,7 @@ Installing Dependencies
 [pyreadline](https://github.com/pyreadline/pyreadline), if running on Windows.
 
 **Note:** As of this writing, the version of python-plexapi on the pip repository is out of date 
-and unsupported by this script. So, we must install the version directly from github. Ensure that 
+and unsupported by this script. So we must install the version directly from github. Ensure that 
 git is installed before you run the command below.
 
 Install on Windows:
@@ -47,7 +47,7 @@ How it Works
 ------------
 When the script is run, the user first chooses their preferred audio and subtitle tracks in one 
 episode. After that, it will check each audio/subtitle track in each remaining episode and look for 
-matches of their original choices.  Here's how a track is chosen:
+matches to their original choices.  Here's how a track is chosen:
 
 **Audio:**
 
