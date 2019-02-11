@@ -818,7 +818,7 @@ while settingStreams:
             printSuccess(episode, newSubtitle)
 
 
-    # Bat set audio/subtitle streams for all chosen episodes
+    # Batch set audio/subtitle streams for all chosen episodes
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
     
         for seasonNum in seasonsToModify:    # Each season
