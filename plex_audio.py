@@ -181,30 +181,6 @@ def episodeToString(episode):
     """
     return "%s - %s" % (episode.seasonEpisode.upper(), episode.title)
     
-def getEpisode(show, title=None, season=None, episode=None):
-    """ Temporary until plexapi function is fixed.
-        Find a episode using a title or season and episode.
-
-       Parameters:
-            show(:class:`~plexapi.video.Show`): Show to get an episode from.
-            title (str): Title of the episode to return
-            season (int): Season number (default:None; required if title not specified).
-            episode (int): Episode number (default:None; required if title not specified).
-
-       Raises:
-            :class:`plexapi.exceptions.BadRequest`: If season and episode is missing.
-            :class:`plexapi.exceptions.NotFound`: If the episode is missing.
-    """
-    if title:
-        key = '/library/metadata/%s/allLeaves' % show.ratingKey
-        return show.fetchItem(key, title__iexact=title)
-    elif season is not None and episode:
-        results = [i for i in show.episodes() if i.seasonNumber == season and i.index == episode]
-        if results:
-            return results[0]
-        raise NotFound('Couldnt find %s S%s E%s' % (show.title, season, episode))
-    raise BadRequest('Missing argument: title or season and episode are required')
-    
 def getNumFromUser(prompt):
     """ Prompts for an integer from the user, only returning when a valid integer
         was entered.
@@ -731,8 +707,7 @@ while settingStreams:
             
             # Print episode settings
             try:
-                # TODO - switch to API call when function is fixed 
-                episode = getEpisode(show, season=seasonNum, episode=episodeNum)
+                episode = show.episode(season=seasonNum, episode=episodeNum)
             except (BadRequest, NotFound):
                 print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, 
                     show.title))
