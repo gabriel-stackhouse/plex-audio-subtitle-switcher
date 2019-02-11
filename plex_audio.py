@@ -686,10 +686,7 @@ while settingStreams:
 
 
     # Print audio & subtitle streams for first episode 
-    if int(seasonsToModify[0]) == 0:
-        episode = show.season('Specials').episodes()[0]
-    else:
-        episode = show.season(int(seasonsToModify[0])).episodes()[0]
+    episode = show.season(int(seasonsToModify[0])).episodes()[0]
     printStreams(episode)
 
 
@@ -825,10 +822,7 @@ while settingStreams:
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
     
         for seasonNum in seasonsToModify:    # Each season
-            if int(seasonNum) == 0:
-                season = show.season('Specials')
-            else:
-                season = show.season(int(seasonNum))
+            season = show.season(int(seasonNum))
             
             for episode in season.episodes():    # Each episode in each season
                 episode.reload()
