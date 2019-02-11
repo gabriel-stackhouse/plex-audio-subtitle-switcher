@@ -45,9 +45,9 @@ online (via your Plex username and password).
 
 How it Works
 ------------
-When the script is run, the user first chooses their preferred audio and subtitle tracks in one
-episode. After that, it will check each audio/subtitle track in each remaining episode and look
-for matches of their original choices.  Here's how a track is chosen:
+When the script is run, the user first chooses their preferred audio and subtitle tracks in one 
+episode. After that, it will check each audio/subtitle track in each remaining episode and look for 
+matches of their original choices.  Here's how a track is chosen:
 
 **Audio:**
 
@@ -67,13 +67,13 @@ Title AND language codes are equal | Language codes are equal | Language codes a
 || Subtitle locations (internal vs. external) are equal ||
 || Subtitle forced flags are equal ||
 
-So, if a track's title and language codes are equal to the original episode's, that track 
-is considered a match. E.g., an English subtitle track titled "English Titles/Signs" will always 
-match with another English track with the same title.
+So, if a track's title and language codes are equal to the original episode's, that track is 
+considered a match. E.g., an English subtitle track titled "English Titles/Signs" will always match 
+with another English track with the same title.
 
-If there are no tracks with equal titles and language codes, the track with the most hits from
-the middle column will be called a match (tie goes to the first track in the video).  Lastly, no
-audio or subtitle tracks with different language codes can be considered a match.
+If there are no tracks with equal titles and language codes, the track with the most hits from the 
+middle column will be called a match (tie goes to the first track in the video).  Lastly, no audio 
+or subtitle tracks with different language codes can be considered a match.
 
 Planned Feature Additions
 -------------------------
