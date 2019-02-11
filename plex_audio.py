@@ -574,18 +574,22 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                     if user.home:
                         homeUsers.append(user.title)
             
+                # Create which user prompt
+                prompt = "Managed user name ["
+                firstUser = True
+                for user in homeUsers:
+                    if firstUser == True:
+                        prompt += user
+                        firstUser = False
+                    else:
+                        prompt += "|%s" % (user)
+                prompt += "]: "
+                
                 # Which user?
+                enableAutoComplete(homeUsers)
                 isValidUser = False
                 while not isValidUser:
-                    print("Managed user name [", end="")
-                    firstUser = True
-                    for user in homeUsers:
-                        if firstUser == True:
-                            print(user, end="")
-                            firstUser = False
-                        else:
-                            print("|%s" % (user), end="")
-                    givenManagedUser = input("]: ")
+                    givenManagedUser = input(prompt)
                     
                     # Check if valid user
                     for user in homeUsers:
@@ -594,11 +598,13 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                             break
                     if not isValidUser:
                         print("Error: User does not exist.")
+                disableAutoComplete()
                         
                 # Sign in with managed user
                 print("Signing in as '%s'..." % (givenManagedUser))
                 managedUser = account.user(givenManagedUser)
-                plex = PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier))
+                plex = PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier), 
+                    session=session)
 
     # Not signing in locally, so connect to Plex server using MyPlex  
     else:
