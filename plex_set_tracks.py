@@ -777,16 +777,35 @@ while settingStreams:
 
 
     # Final prompt
-    #   TODO -- Show user seasons that will be adjusted and streams they will be matched to.
-    #           Then ask if they'd like to continue.
-    
-
+    if adjustAudio == 'y' or adjustSubtitles == 'y':
+        print("Matching Season%s %s of %s to the following tracks:\n" % (
+            "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
+        
+        # Print audio stream template
+        if adjustAudio == 'y':
+            newAudio = episodeStreams.getStreamFromIndex(audioIndex)
+            print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
+            newAudio.title, newAudio.languageCode, newAudio.codec, newAudio.audioChannelLayout))
+            
+        # Print subtitle stream template
+        if adjustSubtitles == 'y' and not resetSubtitles:
+            newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
+            print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
+                newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec, newSubtitle.forced))
+        elif adjustSubtitles == 'y' and resetSubtitles:
+            print("Subtitles | Disabled")
+        
+        # Adjust nothing if user changes their mind
+        willProceed = getYesOrNoFromUser("\nProceed? [Y/n]: ")
+        if willProceed == 'n':
+            adjustAudio = 'n'
+            adjustSubtitles = 'n'
+            
                         
     # Set audio/subtitle streams for highlighted episode
     if adjustAudio == 'y':
         
         # Set audio settings for chosen episode 
-        newAudio = episodeStreams.getStreamFromIndex(audioIndex)
         episodePart.setDefaultAudioStream(newAudio)
         
         # Create template for matching future episodes
@@ -808,7 +827,6 @@ while settingStreams:
         else:
         
             # Set subtitle settings for the chosen episode
-            newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
             episodePart.setDefaultSubtitleStream(newSubtitle)
             
             # Create template for matching future episodes 
@@ -870,6 +888,6 @@ while settingStreams:
                             print("No subtitle matches found for '%s'" % episodeToString(episode))
     
     # Completed!
-    newShow = getYesOrNoFromUser("Audio & subtitle streams set! Modify another show? [Y/n]: ")
+    newShow = getYesOrNoFromUser("Operations complete! Modify another show? [Y/n]: ")
     if newShow == 'n':
         settingStreams = False
