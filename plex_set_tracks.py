@@ -232,7 +232,8 @@ def getSeasonsFromUser(show):
         print("]")
 
         # Choose seasons to modify
-        givenSeasons = input("Which season(s) should we adjust? [Comma-separated, 'all' for entire series]: ")
+        givenSeasons = input(
+            "Which season(s) should we adjust? [Comma-separated, 'all' for entire series]: ")
         
         # If 'all' is typed, return all seasons
         if givenSeasons == "all":
@@ -731,7 +732,8 @@ while settingStreams:
         while not isAudioStream:
             
             # Get index from user
-            audioIndex = getNumFromUser("Choose the number for the audio track you'd like to switch to: ")
+            audioIndex = getNumFromUser(
+                "Choose the number for the audio track you'd like to switch to: ")
             
             # Validate index
             if episodeStreams.indexIsAudioStream(audioIndex):
