@@ -780,6 +780,8 @@ while settingStreams:
 
     # Final prompt
     if adjustAudio == 'y' or adjustSubtitles == 'y':
+    
+        # Print show and seasons we will modify
         print("Matching Season%s %s of %s to the following tracks:\n" % (
             "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
         
@@ -787,7 +789,7 @@ while settingStreams:
         if adjustAudio == 'y':
             newAudio = episodeStreams.getStreamFromIndex(audioIndex)
             print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-            newAudio.title, newAudio.languageCode, newAudio.codec, newAudio.audioChannelLayout))
+                newAudio.title, newAudio.languageCode, newAudio.codec, newAudio.audioChannelLayout))
             
         # Print subtitle stream template
         if adjustSubtitles == 'y' and not resetSubtitles:
@@ -795,9 +797,9 @@ while settingStreams:
             print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
                 newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec, newSubtitle.forced))
         elif adjustSubtitles == 'y' and resetSubtitles:
-            print("Subtitles | Disabled")
+            print("\tSubtitles | Disabled")
         
-        # Adjust nothing if user changes their mind
+        # Ask user whether to proceed
         willProceed = getYesOrNoFromUser("\nProceed? [Y/n]: ")
         if willProceed == 'n':
             adjustAudio = 'n'
