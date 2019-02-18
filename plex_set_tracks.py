@@ -624,29 +624,35 @@ while settingStreams:
             showLibraries.append(lib.title)
     
     # Choose library
-    enableAutoComplete(showLibraries)   # Enable tab autocomplete
-    gotLibrary = False
-    while not gotLibrary:  # Iterate until valid library is chosen
+    if len(showLibraries) < 1:
+        print("Error: No TV Show libraries linked to account.")
+        sys.exit(1)
+    elif len(showLibraries) == 1:
+        library = plex.library.section(showLibraries[0])
+    else:
+        enableAutoComplete(showLibraries)   # Enable tab autocomplete
+        gotLibrary = False
+        while not gotLibrary:  # Iterate until valid library is chosen
 
-        # Get library from user
-        print("Which library is the show in? [", end="")
-        isFirstLibrary = True
-        for lib in showLibraries:       # Display all TV library options
-            if isFirstLibrary:
-                print(lib, end="")
-                isFirstLibrary = False
-            else:
-                print("|%s" % (lib), end="")
-        givenLibrary = input("]: ")    # Choose library
+            # Get library from user
+            print("Which library is the show in? [", end="")
+            isFirstLibrary = True
+            for lib in showLibraries:       # Display all TV library options
+                if isFirstLibrary:
+                    print(lib, end="")
+                    isFirstLibrary = False
+                else:
+                    print("|%s" % (lib), end="")
+            givenLibrary = input("]: ")    # Choose library
 
-        # Check input 
-        for lib in showLibraries:
-            if lib.lower() == givenLibrary.lower():
-                gotLibrary = True
-                break
-        if gotLibrary == False:
-            print("Error: '%s' is not a TV library." % (givenLibrary))
-    library = plex.library.section(givenLibrary.lower())    # Got valid library
+            # Check input 
+            for lib in showLibraries:
+                if lib.lower() == givenLibrary.lower():
+                    gotLibrary = True
+                    break
+            if gotLibrary == False:
+                print("Error: '%s' is not a TV library." % (givenLibrary))
+        library = plex.library.section(givenLibrary.lower())    # Got valid library
 
     
     # Get list of shows from library
