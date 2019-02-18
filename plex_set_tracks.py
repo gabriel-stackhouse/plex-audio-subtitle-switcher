@@ -17,9 +17,8 @@ except ImportError:
 ## Plex Connection Info (Optional - will prompt for info if left blank)
 ###################################################################################################
 
-# TODO -- remove info
-PLEX_URL='https://192.168.1.50:32400'            # URL to Plex server (optional). Ex. https://192.168.1.50:32400
-PLEX_TOKEN = 'kboUyRzgTANGM2BnXmr3'     # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
+PLEX_URL=''        # URL to Plex server (optional). Ex. https://192.168.1.50:32400
+PLEX_TOKEN = ''    # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
 ## Classes
