@@ -21,11 +21,15 @@ git is installed before you run the command below.
 
 Install on Windows:
 
-    pip install -r requirements.txt
+    pip install -r ./setup/windows.txt
     
-Or on Linux:
+Linux:
 
-    pip3 install -r requirements.txt
+    pip3 install -r ./setup/linux.txt
+    
+Or MacOS:
+
+    pip3 install -r ./setup/mac.txt
 
 Running the Script
 ------------------
