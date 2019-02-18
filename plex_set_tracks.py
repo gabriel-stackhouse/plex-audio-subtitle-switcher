@@ -11,7 +11,10 @@ import requests
 try:
     import readline
 except ImportError:
-    import pyreadline as readline
+    try:
+        import pyreadline as readline
+    except ImportError:
+        import gnureadline as readline
 
 ###################################################################################################
 ## Plex Connection Info (Optional - will prompt for info if left blank)
