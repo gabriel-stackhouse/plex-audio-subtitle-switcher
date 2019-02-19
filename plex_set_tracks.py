@@ -17,12 +17,13 @@ except ImportError:
 ## Plex Connection Info (Optional - will prompt for info if left blank)
 ###################################################################################################
 
-PLEX_URL=''        # URL to Plex server (optional). Ex. https://192.168.1.50:32400
+PLEX_URL = ''        # URL to Plex server (optional). Ex. https://192.168.1.50:32400
 PLEX_TOKEN = ''    # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
 ## Classes
 ###################################################################################################
+
 
 class AudioStreamInfo:
     """ Container class to hold info about an AudioStream
@@ -46,6 +47,7 @@ class AudioStreamInfo:
         self.codec = audioStream.codec
         self.languageCode = audioStream.languageCode
         self.title = audioStream.title
+
 
 class OrganizedStreams:
     """ Container class that stores AudioStreams and SubtitleStreams while allowing for
@@ -114,6 +116,7 @@ class OrganizedStreams:
         return givenIndex > len(self.audioStreams) and givenIndex <= \
             len(self.audioStreams) + len(self.subtitleStreams)
 
+
 class SubtitleStreamInfo:
     """ Container class to hold info about a SubtitleStream
 
@@ -144,9 +147,11 @@ class SubtitleStreamInfo:
 ## Functions
 ###################################################################################################
 
+
 def disableAutoComplete():
     """ Disables tab-autocomplete functionality in user input."""
     readline.set_completer(None)
+
 
 def enableAutoComplete(matchList):
     """ Enables tab-autocomplete functionality in user input.
@@ -156,20 +161,22 @@ def enableAutoComplete(matchList):
     """
     readline.parse_and_bind("tab: complete")
     readline.set_completer_delims("")
-    def complete(text, state):
-       """ Credit Chris Siebenmann: https://bit.ly/2E0pNDB"""
-       # generate candidate completion list
-       if text == "":
-          matches = matchList
-       else:
-          matches = [x for x in matchList if x.lower().startswith(text.lower())]
 
-       # return current completion match
-       if state > len(matches):
-          return None
-       else:
-          return matches[state]
+    def complete(text, state):
+        """ Credit Chris Siebenmann: https://bit.ly/2E0pNDB"""
+        # generate candidate completion list
+        if text == "":
+            matches = matchList
+        else:
+            matches = [x for x in matchList if x.lower().startswith(text.lower())]
+
+        # return current completion match
+        if state > len(matches):
+            return None
+        else:
+            return matches[state]
     readline.set_completer(complete)
+
 
 def episodeToString(episode):
     """ Returns a string representation of an episode in the following format:
@@ -180,6 +187,7 @@ def episodeToString(episode):
                 represented with a string.
     """
     return "%s - %s" % (episode.seasonEpisode.upper(), episode.title)
+
 
 def getNumFromUser(prompt):
     """ Prompts for an integer from the user, only returning when a valid integer
@@ -198,6 +206,7 @@ def getNumFromUser(prompt):
         else:
             isValidNum = True
     return num
+
 
 def getSeasonsFromUser(show):
     """ Gets seasons of a show to be adjusted from the user, then checks if all
@@ -267,6 +276,7 @@ def getSeasonsFromUser(show):
     # Return valid seasons to modify
     return givenSeasonsList
 
+
 def getYesOrNoFromUser(prompt):
     """ Prompts user for a 'y' or 'n' response, then validates.
 
@@ -281,6 +291,7 @@ def getYesOrNoFromUser(prompt):
         else:
             print("Error: Invalid input")
     return givenInput
+
 
 def matchAudio(episodePart, template):
     """ Returns the :class:`~plexapi.media.AudioStream` from the given MediaPart that is
@@ -334,6 +345,7 @@ def matchAudio(episodePart, template):
 
     if winningScore >= 0:
         return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
+
 
 def matchSubtitles(episodePart, template):
     """ Returns the :class:`~plexapi.media.SubtitleStream` from the given MediaPart that is
@@ -396,6 +408,7 @@ def matchSubtitles(episodePart, template):
     if winningScore >= 0:
         return subtitleStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
 
+
 def printResetSubSuccess(episode):
     """ Prints a success message when subtitles are reset.
 
@@ -403,6 +416,7 @@ def printResetSubSuccess(episode):
             episode(:class:`plexapi.video.Episode`): The episode whose subtitles are reset.
     """
     print("Reset subtitles for '%s'" % episodeToString(episode))
+
 
 def printStreams(episode):
     """ Given an episode, prints all AudioStreams and SubtitleStreams.
@@ -419,7 +433,7 @@ def printStreams(episode):
     # Print audio streams
     count = 1
     print("\nAudio & subtitle settings for '%s %s':\n" % (episode.show().title,
-        episodeToString(episode)))
+          episodeToString(episode)))
     print("Audio:\n")
     for stream in streams.audioStreams:
         selected = ""
@@ -447,6 +461,7 @@ def printStreams(episode):
 
         print("\n\t* = Currently enabled track.\n")
 
+
 def printSubtitles(streams, startIndex=1):
     """ Given a list of SubtitleStreams, print their info. Index starts at startIndex, and
         function returns the last index used + 1.
@@ -464,6 +479,7 @@ def printSubtitles(streams, startIndex=1):
             count, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
         count += 1
     return count
+
 
 def printSuccess(episode, newStream):
     """ Prints stream set successfully.
@@ -484,6 +500,7 @@ def printSuccess(episode, newStream):
         streamType = "subtitle"
     print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
 
+
 def seasonsToString(seasons):
     """ Given list of season numbers, returns string of seasons ina readable format.
         Ex: "1, 2, 4, and 5"
@@ -491,7 +508,7 @@ def seasonsToString(seasons):
         Parameters:
             seasons(list<int>): List of season numbers.
     """
-    seasonString=""
+    seasonString = ""
     isFirstSeason = True
     i = 0
     for s in seasons:
@@ -504,6 +521,7 @@ def seasonsToString(seasons):
                 "and " if i == len(seasons) - 1 else "", s)
         i += 1
     return seasonString
+
 
 def signIn(PLEX_URL, PLEX_TOKEN):
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer`
@@ -581,7 +599,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 print("Signing in as '%s'..." % (givenManagedUser))
                 managedUser = account.user(givenManagedUser)
                 plex = PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier),
-                    session=session)
+                                  session=session)
 
     # Not signing in locally, so connect to Plex server using MyPlex
     else:
@@ -609,6 +627,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
 ###################################################################################################
 ## Start Script
 ###################################################################################################
+
 
 # Get Plex server instance
 plex = signIn(PLEX_URL, PLEX_TOKEN)
@@ -654,12 +673,10 @@ while settingStreams:
                 print("Error: '%s' is not a TV library." % (givenLibrary))
         library = plex.library.section(givenLibrary.lower())    # Got valid library
 
-
     # Get list of shows from library
     showTitles = []
     for show in library.search(libtype="show"):
         showTitles.append(show.title)
-
 
     # Get show to modify from user
     enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
@@ -682,20 +699,16 @@ while settingStreams:
 
     disableAutoComplete()   # Disable autocomplete
 
-
     # Get seasons of show to modify from user
     seasonsToModify = getSeasonsFromUser(show)
-
 
     # Print all seasons we'll modify
     print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
         "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
 
-
     # Print audio & subtitle streams for first episode
     episode = show.season(int(seasonsToModify[0])).episodes()[0]
     printStreams(episode)
-
 
     # Display settings for another episode?
     displayingEpisodes = True
@@ -714,18 +727,16 @@ while settingStreams:
                 episode = show.episode(season=seasonNum, episode=episodeNum)
             except (BadRequest, NotFound):
                 print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum,
-                    show.title))
+                      show.title))
             else:
                 printStreams(episode)
 
         else:   # User done displaying episodes
             displayingEpisodes = False
 
-
     # Get audio and subtitle streams of displayed episode
     episodePart = episode.media[0].parts[0]         # The episode file
     episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
-
 
     # Get index of new audio stream from user
     audioIndex = None
@@ -745,7 +756,6 @@ while settingStreams:
                 isAudioStream = True
             else:
                 print("Error: Number does not correspond to an audio track.")
-
 
     # Get index of new subtitle stream from user
     subIndex = None
@@ -782,7 +792,6 @@ while settingStreams:
                     else:
                         print("Error: Number does not correspond to a subtitle track.")
 
-
     # Final prompt
     if adjustAudio == 'y' or adjustSubtitles == 'y':
 
@@ -809,7 +818,6 @@ while settingStreams:
         if willProceed == 'n':
             adjustAudio = 'n'
             adjustSubtitles = 'n'
-
 
     # Set audio/subtitle streams for highlighted episode
     if adjustAudio == 'y':
@@ -844,7 +852,6 @@ while settingStreams:
 
             # Print result
             printSuccess(episode, newSubtitle)
-
 
     # Batch set audio/subtitle streams for all chosen episodes
     if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
