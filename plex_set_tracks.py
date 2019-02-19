@@ -1,6 +1,5 @@
 from plexapi.server import PlexServer
 from plexapi.myplex import MyPlexAccount
-from plexapi.client import PlexClient
 from plexapi.exceptions import NotFound
 from plexapi.exceptions import BadRequest
 from plexapi.media import AudioStream
@@ -17,7 +16,7 @@ except ImportError:
 ## Plex Connection Info (Optional - will prompt for info if left blank)
 ###################################################################################################
 
-PLEX_URL = ''        # URL to Plex server (optional). Ex. https://192.168.1.50:32400
+PLEX_URL = ''      # URL to Plex server (optional). Ex. https://192.168.1.50:32400
 PLEX_TOKEN = ''    # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
@@ -56,10 +55,10 @@ class OrganizedStreams:
         Attributes:
             audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams
                 in MediaPart
-            externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
-                that are located in the MediaPart externally
-            internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all SubtitleStreams
-                that are located in the MediaPart internally
+            externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all
+                SubtitleStreams that are located in the MediaPart externally
+            internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all
+                SubtitleStreams that are located in the MediaPart internally
             part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
             subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
                 SubtitleStreams in MediaPart
@@ -517,8 +516,8 @@ def seasonsToString(seasons):
             isFirstSeason = False
         else:
             # Who gave the grammar nazi a software degree?
-            seasonString += "%s %s%s" % ("," if len(seasons) > 2 else "",
-                "and " if i == len(seasons) - 1 else "", s)
+            seasonString += "%s %s%s" % (
+                "," if len(seasons) > 2 else "", "and " if i == len(seasons) - 1 else "", s)
         i += 1
     return seasonString
 
@@ -549,7 +548,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
                 account = plex.myPlexAccount()
                 isSignedIn = True
-            except:
+            except requests.ConnectionError:
                 print("Error: Connection failed. Is your login info correct?")
                 PLEX_URL = ''
                 PLEX_TOKEN = ''
@@ -617,7 +616,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 account = MyPlexAccount(username, password)
                 plex = account.resource(serverName).connect()
                 isSignedIn = True
-            except:
+            except (BadRequest, NotFound):
                 print("Error: Login failed. Are your credentials correct?")
 
     # Signed in. Return server instance.
@@ -768,8 +767,9 @@ while settingStreams:
         while not isSubtitleStream:
 
             # Get sub index from user
-            givenSubIndex = input("Choose the number for the subtitle track you'd like " +
-                "to switch to, or leave blank to disable subtitles: ").lower()
+            givenSubIndex = input(
+                "Choose the number for the subtitle track you'd like to switch to, or leave blank "
+                "to disable subtitles: ").lower()
 
             # If left blank, subtitles will be disabled
             if givenSubIndex == "":
@@ -803,13 +803,15 @@ while settingStreams:
         if adjustAudio == 'y':
             newAudio = episodeStreams.getStreamFromIndex(audioIndex)
             print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-                newAudio.title, newAudio.languageCode, newAudio.codec, newAudio.audioChannelLayout))
+                newAudio.title, newAudio.languageCode, newAudio.codec,
+                newAudio.audioChannelLayout))
 
         # Print subtitle stream template
         if adjustSubtitles == 'y' and not resetSubtitles:
             newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
             print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-                newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec, newSubtitle.forced))
+                newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec,
+                newSubtitle.forced))
         elif adjustSubtitles == 'y' and resetSubtitles:
             print("\tSubtitles | Disabled")
 
@@ -847,8 +849,8 @@ while settingStreams:
             episodePart.setDefaultSubtitleStream(newSubtitle)
 
             # Create template for matching future episodes
-            subtitleTemplate = SubtitleStreamInfo(newSubtitle, subIndex,
-                subIndex - len(episodeStreams.audioStreams))
+            subtitleTemplate = SubtitleStreamInfo(
+                newSubtitle, subIndex, subIndex - len(episodeStreams.audioStreams))
 
             # Print result
             printSuccess(episode, newSubtitle)
