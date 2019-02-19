@@ -217,7 +217,8 @@ def getSeasonsFromUser(show):
             show(:class:`~plexapi.video.Show`): The show the user will be choosing
                 seasons from.
     """
-    while True:
+    allSeasonsValid = False
+    while not allSeasonsValid:
         # Get seasons user has in library
         seasonNums = []
         for season in show.seasons():
@@ -266,8 +267,10 @@ def getSeasonsFromUser(show):
 
         # If we got through all seasons successfully, they are all valid
         if curSeasonIsValid:
-            # Return valid seasons to modify
-            return givenSeasonsList
+            allSeasonsValid = True
+
+    # Return valid seasons to modify
+    return givenSeasonsList
 
 
 def getYesOrNoFromUser(prompt):
