@@ -537,16 +537,16 @@ def signIn(PLEX_URL, PLEX_TOKEN):
     if localSignIn == 'y':
 
         # Connect to Plex server locally
-        plex = signInLocally(PLEX_URL, PLEX_TOKEN)
+        plexServer = signInLocally(PLEX_URL, PLEX_TOKEN)
 
     else:
 
         # Connect to Plex server using MyPlex
-        plex = signInOnline()
+        plexServer = signInOnline()
 
     # Signed in. Return server instance.
-    print("Signed into server '%s'." % (plex.friendlyName))
-    return plex
+    print("Signed into server '%s'." % (plexServer.friendlyName))
+    return plexServer
 
 
 def signInLocally(PLEX_URL, PLEX_TOKEN):
@@ -571,8 +571,8 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
             requests.packages.urllib3.disable_warnings()
             session = requests.Session()
             session.verify = False
-            plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
-            account = plex.myPlexAccount()
+            plexServer = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
+            account = plexServer.myPlexAccount()
             isSignedIn = True
         except (requests.ConnectionError, BadRequest) as error:
 
@@ -594,8 +594,8 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
 
         # If yes, sign in as managed user
         if useManagedUser == 'y':
-            plex = signInManagedUser(plex, account, session)
-    return plex
+            plexServer = signInManagedUser(plexServer, account, session)
+    return plexServer
 
 
 def signInManagedUser(plex, account, session):
@@ -660,13 +660,13 @@ def signInOnline():
         print("Signing in (this may take awhile)...")
         try:
             account = MyPlexAccount(username, password)
-            plex = account.resource(serverName).connect()
+            plexServer = account.resource(serverName).connect()
             isSignedIn = True
         except BadRequest:
             print("Error: Login failed. Are your credentials correct?")
         except NotFound:
-            print("Error: Server '%s' not found linked to account." % serverName)
-    return plex
+            print("Error: Server '%s' not found linked to your account." % serverName)
+    return plexServer
 
 ###################################################################################################
 ## Start Script
