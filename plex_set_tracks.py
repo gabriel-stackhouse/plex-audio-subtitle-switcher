@@ -221,7 +221,6 @@ def getSeasonsFromUser(show):
     """
     allSeasonsValid = False
     while not allSeasonsValid:
-
         # Get seasons user has in library
         seasonNums = []
         for season in show.seasons():
@@ -263,10 +262,7 @@ def getSeasonsFromUser(show):
                 break
 
             # Now check if they have said season in their library
-            for season in seasonNums:
-                if seasonInt == season:
-                    curSeasonIsValid = True
-                    break
+            curSeasonIsValid = seasonInt in seasonNums
             if not curSeasonIsValid:
                 print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
                 break
