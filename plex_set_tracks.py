@@ -8,9 +8,12 @@ import getpass
 import sys
 import requests
 try:
-    import readline
+    import gnureadline as readline
 except ImportError:
-    import pyreadline as readline
+    try:
+        import pyreadline as readline
+    except ImportError:
+        import readline
 
 ###################################################################################################
 ## Plex Connection Info (Optional - will prompt for info if left blank)
