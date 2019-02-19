@@ -595,7 +595,6 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
         # If yes, sign in as managed user
         if useManagedUser == 'y':
             plex = signInManagedUser(plex, account, session)
-
     return plex
 
 
@@ -667,7 +666,6 @@ def signInOnline():
             print("Error: Login failed. Are your credentials correct?")
         except NotFound:
             print("Error: Server '%s' not found linked to account." % serverName)
-
     return plex
 
 ###################################################################################################
