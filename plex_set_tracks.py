@@ -232,7 +232,7 @@ def getSeasonsFromUser(show):
         print("You have the following seasons of '%s': [" % (show.title), end="")
         isFirstSeason = True
         for season in seasonNums:
-            if isFirstSeason == True:
+            if isFirstSeason:
                 print("%d" % (season), end="")
                 isFirstSeason = False
             else:
@@ -265,12 +265,12 @@ def getSeasonsFromUser(show):
                 if seasonInt == season:
                     curSeasonIsValid = True
                     break
-            if curSeasonIsValid == False:
+            if not curSeasonIsValid:
                 print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
                 break
 
         # If we got through all seasons successfully, they are all valid
-        if curSeasonIsValid == True:
+        if curSeasonIsValid:
             allSeasonsValid = True
 
     # Return valid seasons to modify
@@ -437,7 +437,7 @@ def printStreams(episode):
     print("Audio:\n")
     for stream in streams.audioStreams:
         selected = ""
-        if stream.selected == True:
+        if stream.selected:
             selected = "*"
         print("\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
             count, selected, stream.title, stream.languageCode, stream.codec,
@@ -473,7 +473,7 @@ def printSubtitles(streams, startIndex=1):
     count = startIndex
     for stream in streams:
         selected = ""
-        if stream.selected == True:
+        if stream.selected:
             selected = "*"
         print("\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
             count, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
@@ -573,7 +573,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 prompt = "Managed user name ["
                 firstUser = True
                 for user in homeUsers:
-                    if firstUser == True:
+                    if firstUser:
                         prompt += user
                         firstUser = False
                     else:
@@ -669,7 +669,7 @@ while settingStreams:
                 if lib.lower() == givenLibrary.lower():
                     gotLibrary = True
                     break
-            if gotLibrary == False:
+            if not gotLibrary:
                 print("Error: '%s' is not a TV library." % (givenLibrary))
         library = plex.library.section(givenLibrary.lower())    # Got valid library
 
@@ -787,7 +787,7 @@ while settingStreams:
                 else:
 
                     # Validate
-                    if episodeStreams.indexIsSubStream(subIndex) == True:
+                    if episodeStreams.indexIsSubStream(subIndex):
                         isSubtitleStream = True
                     else:
                         print("Error: Number does not correspond to a subtitle track.")
