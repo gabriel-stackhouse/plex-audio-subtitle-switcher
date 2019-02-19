@@ -41,7 +41,8 @@ them, are relatively similar. Results may vary if modifying episodes from a wide
 the spots indicated in the file. You will be prompted for this information if this step is not 
 completed.
 
-1. Run the script.  Windows: ```python ./plex_set_tracks.py``` or Linux: ```python3 ./plex_set_tracks.py```
+1. Run the script.  Windows: ```python ./plex_set_tracks.py``` or Linux/MacOS: 
+```python3 ./plex_set_tracks.py```.
 
 2. Choose whether to connect to your Plex server locally (via your Plex URL and an API token), or 
 online (via your Plex username and password).
