@@ -548,7 +548,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
                 account = plex.myPlexAccount()
                 isSignedIn = True
-            except requests.ConnectionError:
+            except (requests.ConnectionError, BadRequest):
                 print("Error: Connection failed. Is your login info correct?")
                 PLEX_URL = ''
                 PLEX_TOKEN = ''
