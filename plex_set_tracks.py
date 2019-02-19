@@ -538,12 +538,9 @@ def signIn(PLEX_URL, PLEX_TOKEN):
         "Connect to server locally? (Must choose yes if signing in as managed user) [Y/n]: ")
 
     if localSignIn == 'y':
-
         # Connect to Plex server locally
         plexServer = signInLocally(PLEX_URL, PLEX_TOKEN)
-
     else:
-
         # Connect to Plex server using MyPlex
         plexServer = signInOnline()
 
