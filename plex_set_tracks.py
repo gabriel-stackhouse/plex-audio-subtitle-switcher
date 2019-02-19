@@ -528,103 +528,148 @@ def seasonsToString(seasons):
 def signIn(PLEX_URL, PLEX_TOKEN):
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer`
         instance.
-    """
 
+        Parameters:
+            PLEX_URL(str): Local URL of the Plex server.
+            PLEX_TOKEN(str): API token for the Plex server.
+    """
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
         "Connect to server locally? (Must choose yes if signing in as managed user) [Y/n]: ")
 
-    # Connect to Plex server
     if localSignIn == 'y':
 
         # Connect to Plex server locally
-        isSignedIn = False
-        while not isSignedIn:
-            if PLEX_URL == '' or PLEX_TOKEN == '':
-                PLEX_URL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
-                PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
-            print("Signing in...")
-            try:
-                requests.packages.urllib3.disable_warnings()
-                session = requests.Session()
-                session.verify = False
-                plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
-                account = plex.myPlexAccount()
-                isSignedIn = True
-            except (requests.ConnectionError, BadRequest):
-                print("Error: Connection failed. Is your login info correct?")
-                PLEX_URL = ''
-                PLEX_TOKEN = ''
+        plexServer = signInLocally(PLEX_URL, PLEX_TOKEN)
 
-        # Give option to sign in as Managed User if server has them
-        if account.subscriptionActive and account.homeSize > 1:
-
-            # Sign in as managed user?
-            useManagedUser = getYesOrNoFromUser("Sign in as managed user? [Y/n]: ")
-
-            # If yes, sign in as managed user
-            if useManagedUser == 'y':
-
-                # Get all home users
-                homeUsers = []
-                for user in account.users():
-                    if user.home:
-                        homeUsers.append(user.title)
-
-                # Create which user prompt
-                prompt = "Managed user name ["
-                firstUser = True
-                for user in homeUsers:
-                    if firstUser:
-                        prompt += user
-                        firstUser = False
-                    else:
-                        prompt += "|%s" % (user)
-                prompt += "]: "
-
-                # Which user?
-                enableAutoComplete(homeUsers)
-                isValidUser = False
-                while not isValidUser:
-                    givenManagedUser = input(prompt)
-
-                    # Check if valid user
-                    for user in homeUsers:
-                        if user.lower() == givenManagedUser.lower():
-                            isValidUser = True
-                            break
-                    if not isValidUser:
-                        print("Error: User does not exist.")
-                disableAutoComplete()
-
-                # Sign in with managed user
-                print("Signing in as '%s'..." % (givenManagedUser))
-                managedUser = account.user(givenManagedUser)
-                plex = PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier),
-                                  session=session)
-
-    # Not signing in locally, so connect to Plex server using MyPlex
     else:
-        isSignedIn = False
-        while not isSignedIn:
 
-            # Get login info from user
-            username = input("Plex username: ")
-            password = getpass.getpass("Plex password: ")
-            serverName = input("Plex server name: ")
-
-            # Sign in via MyPlex
-            print("Signing in (this may take awhile)...")
-            try:
-                account = MyPlexAccount(username, password)
-                plex = account.resource(serverName).connect()
-                isSignedIn = True
-            except (BadRequest, NotFound):
-                print("Error: Login failed. Are your credentials correct?")
+        # Connect to Plex server using MyPlex
+        plexServer = signInOnline()
 
     # Signed in. Return server instance.
-    print("Signed into server '%s'." % (plex.friendlyName))
-    return plex
+    print("Signed into server '%s'." % (plexServer.friendlyName))
+    return plexServer
+
+
+def signInLocally(PLEX_URL, PLEX_TOKEN):
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting through the local network.
+
+        Parameters:
+            PLEX_URL(str): Local URL of the Plex server.
+            PLEX_TOKEN(str): API token for the Plex server.
+    """
+    # Attempt to sign on
+    isSignedIn = False
+    while not isSignedIn:
+        if PLEX_URL == '' or PLEX_TOKEN == '':
+
+            # Get URL and token from user
+            PLEX_URL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
+            PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
+
+        # Sign in
+        print("Signing in...")
+        try:
+            requests.packages.urllib3.disable_warnings()
+            session = requests.Session()
+            session.verify = False
+            plexServer = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
+            account = plexServer.myPlexAccount()
+            isSignedIn = True
+        except (requests.ConnectionError, BadRequest) as error:
+
+            # Connection failed
+            if isinstance(error, requests.ConnectionError):
+                print("Error: No server found at the given URL.")
+            else:
+                print("Error: Invalid API token.")
+
+            # Clear info and try again
+            PLEX_URL = ''
+            PLEX_TOKEN = ''
+
+    # Give option to sign in as Managed User if server has them
+    if account.subscriptionActive and account.homeSize > 1:
+
+        # Sign in as managed user?
+        useManagedUser = getYesOrNoFromUser("Sign in as managed user? [Y/n]: ")
+
+        # If yes, sign in as managed user
+        if useManagedUser == 'y':
+            plexServer = signInManagedUser(plexServer, account, session)
+    return plexServer
+
+
+def signInManagedUser(plex, account, session):
+    """ Prompts for a managed user, then returns a :class:`~plexapi.server.PlexServer` instance
+        for said user.
+
+        Parameters:
+            plex(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
+            account(:class:`plexapi.myplex.MyPlexAccount`): MyPlexAccount of the account owner.
+            session(requests.session): Session object used in account owner sign-in.
+    """
+    # Get all home users
+    homeUsers = []
+    for user in account.users():
+        if user.home:
+            homeUsers.append(user.title)
+
+    # Create which user prompt
+    prompt = "Managed user name ["
+    firstUser = True
+    for user in homeUsers:
+        if firstUser:
+            prompt += user
+            firstUser = False
+        else:
+            prompt += "|%s" % (user)
+    prompt += "]: "
+
+    # Which user?
+    enableAutoComplete(homeUsers)
+    isValidUser = False
+    while not isValidUser:
+        givenManagedUser = input(prompt)
+
+        # Check if valid user
+        for user in homeUsers:
+            if user.lower() == givenManagedUser.lower():
+                isValidUser = True
+                break
+        if not isValidUser:
+            print("Error: User does not exist.")
+    disableAutoComplete()
+
+    # Sign in with managed user
+    print("Signing in as '%s'..." % (givenManagedUser))
+    managedUser = account.user(givenManagedUser)
+    return PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier), session=session)
+
+
+def signInOnline():
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting online through MyPlex."""
+    # Attempt to sign on
+    isSignedIn = False
+    while not isSignedIn:
+
+        # Get login info from user
+        username = input("Plex username: ")
+        password = getpass.getpass("Plex password: ")
+        serverName = input("Plex server name: ")
+
+        # Sign in via MyPlex
+        print("Signing in (this may take awhile)...")
+        try:
+            account = MyPlexAccount(username, password)
+            plexServer = account.resource(serverName).connect()
+            isSignedIn = True
+        except BadRequest:
+            print("Error: Login failed. Are your credentials correct?")
+        except NotFound:
+            print("Error: Server '%s' not found linked to your account." % serverName)
+    return plexServer
 
 ###################################################################################################
 ## Start Script
