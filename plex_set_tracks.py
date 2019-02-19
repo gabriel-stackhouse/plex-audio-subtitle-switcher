@@ -11,9 +11,9 @@ try:
     import gnureadline as readline
 except ImportError:
     try:
-        import pyreadline as readline
-    except ImportError:
         import readline
+    except ImportError:
+        import pyreadline as readline
 
 ###################################################################################################
 ## Plex Connection Info (Optional - will prompt for info if left blank)
