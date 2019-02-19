@@ -574,10 +574,13 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
             plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
             account = plex.myPlexAccount()
             isSignedIn = True
-        except (requests.ConnectionError, BadRequest):
+        except (requests.ConnectionError, BadRequest) as error:
 
             # Connection failed
-            print("Error: Connection failed. Is your login info correct?")
+            if isinstance(error, requests.ConnectionError):
+                print("Error: No server found at the given URL.")
+            else:
+                print("Error: Invalid API token.")
 
             # Clear info and try again
             PLEX_URL = ''
@@ -660,8 +663,10 @@ def signInOnline():
             account = MyPlexAccount(username, password)
             plex = account.resource(serverName).connect()
             isSignedIn = True
-        except (BadRequest, NotFound):
+        except BadRequest:
             print("Error: Login failed. Are your credentials correct?")
+        except NotFound:
+            print("Error: Server '%s' not found linked to account." % serverName)
 
     return plex
 
