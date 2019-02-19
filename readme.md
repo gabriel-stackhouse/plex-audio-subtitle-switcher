@@ -12,12 +12,13 @@ It is made with ease-of-use in mind - simply run the script and it'll walk you t
 
 Installing Dependencies
 -----------------------
-**Dependencies:** Python 3, [python-plexapi](https://github.com/pkkid/python-plexapi), and 
-[pyreadline](https://github.com/pyreadline/pyreadline), if running on Windows.
+**Dependencies:** Python 3, [python-plexapi](https://github.com/pkkid/python-plexapi), 
+[pyreadline](https://github.com/pyreadline/pyreadline) if running on Windows, and
+[gnureadline](https://pypi.org/project/gnureadline/) if running on MacOS.
 
 **Note:** As of this writing, the version of python-plexapi on the pip repository is out of date 
-and unsupported by this script. So we must install the version directly from github. Ensure that 
-git is installed before you run the command below.
+and unsupported by this script. So we must install the version directly from github. The command
+below will do this automatically, so ensure that git is installed before running it.
 
 Install on Windows:
 
