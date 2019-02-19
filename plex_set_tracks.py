@@ -644,7 +644,7 @@ def signInManagedUser(plex, account, session):
 
 
 def signInOnline():
-    """Returns a :class:`~plexapi.server.PlexServer` by connecting online through MyPlex."""
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting online through MyPlex."""
     # Attempt to sign on
     isSignedIn = False
     while not isSignedIn:
