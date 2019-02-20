@@ -7,6 +7,7 @@ from plexapi.media import SubtitleStream
 import getpass
 import sys
 import requests
+import configparser
 try:
     import gnureadline as readline
 except ImportError:
@@ -14,13 +15,6 @@ except ImportError:
         import readline
     except ImportError:
         import pyreadline as readline
-
-###################################################################################################
-## Plex Connection Info (Optional - will prompt for info if left blank)
-###################################################################################################
-
-PLEX_URL = ''      # URL to Plex server (optional). Ex. https://192.168.1.50:32400
-PLEX_TOKEN = ''    # Plex authentication token (optional). Info here: https://bit.ly/2p7RtOu
 
 ###################################################################################################
 ## Classes
@@ -521,13 +515,9 @@ def seasonsToString(seasons):
     return seasonString
 
 
-def signIn(PLEX_URL, PLEX_TOKEN):
+def signIn():
     """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer`
         instance.
-
-        Parameters:
-            PLEX_URL(str): Local URL of the Plex server.
-            PLEX_TOKEN(str): API token for the Plex server.
     """
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
@@ -535,7 +525,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
 
     if localSignIn == 'y':
         # Connect to Plex server locally
-        plexServer = signInLocally(PLEX_URL, PLEX_TOKEN)
+        plexServer = signInLocally()
     else:
         # Connect to Plex server using MyPlex
         plexServer = signInOnline()
@@ -545,21 +535,22 @@ def signIn(PLEX_URL, PLEX_TOKEN):
     return plexServer
 
 
-def signInLocally(PLEX_URL, PLEX_TOKEN):
-    """ Returns a :class:`~plexapi.server.PlexServer` by connecting through the local network.
+def signInLocally():
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting through the local network."""
+    # Get URL and token from config.ini
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    plexURL = config['LOGIN']['PLEX_URL']
+    plexToken = config['LOGIN']['PLEX_TOKEN']
 
-        Parameters:
-            PLEX_URL(str): Local URL of the Plex server.
-            PLEX_TOKEN(str): API token for the Plex server.
-    """
-    # Attempt to sign on
+    # Attempt to sign in
     isSignedIn = False
     while not isSignedIn:
-        if PLEX_URL == '' or PLEX_TOKEN == '':
+        if plexURL == '' or plexToken == '':
 
             # Get URL and token from user
-            PLEX_URL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
-            PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
+            plexURL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
+            plexToken = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
 
         # Sign in
         print("Signing in...")
@@ -567,7 +558,7 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
             requests.packages.urllib3.disable_warnings()
             session = requests.Session()
             session.verify = False
-            plexServer = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
+            plexServer = PlexServer(plexURL, plexToken, session=session)
             account = plexServer.myPlexAccount()
             isSignedIn = True
         except (requests.ConnectionError, BadRequest) as error:
@@ -579,8 +570,8 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
                 print("Error: Invalid API token.")
 
             # Clear info and try again
-            PLEX_URL = ''
-            PLEX_TOKEN = ''
+            plexURL = ''
+            plexToken = ''
 
     # Give option to sign in as Managed User if server has them
     if account.subscriptionActive and account.homeSize > 1:
@@ -590,11 +581,11 @@ def signInLocally(PLEX_URL, PLEX_TOKEN):
 
         # If yes, sign in as managed user
         if useManagedUser == 'y':
-            plexServer = signInManagedUser(plexServer, account, session)
+            plexServer = signInManagedUser(plexServer, account, session, plexURL)
     return plexServer
 
 
-def signInManagedUser(plex, account, session):
+def signInManagedUser(plex, account, session, plexURL):
     """ Prompts for a managed user, then returns a :class:`~plexapi.server.PlexServer` instance
         for said user.
 
@@ -602,6 +593,7 @@ def signInManagedUser(plex, account, session):
             plex(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
             account(:class:`plexapi.myplex.MyPlexAccount`): MyPlexAccount of the account owner.
             session(requests.session): Session object used in account owner sign-in.
+            plexURL(str): The local URL of the Plex server.
     """
     # Get all home users
     homeUsers = []
@@ -636,9 +628,9 @@ def signInManagedUser(plex, account, session):
     disableAutoComplete()
 
     # Sign in with managed user
-    print("Signing in as '%s'..." % (givenManagedUser))
+    print("Signing in as '%s'..." % givenManagedUser)
     managedUser = account.user(givenManagedUser)
-    return PlexServer(PLEX_URL, managedUser.get_token(plex.machineIdentifier), session=session)
+    return PlexServer(plexURL, managedUser.get_token(plex.machineIdentifier), session=session)
 
 
 def signInOnline():
@@ -670,7 +662,7 @@ def signInOnline():
 
 
 # Get Plex server instance
-plex = signIn(PLEX_URL, PLEX_TOKEN)
+plex = signIn()
 
 # Begin program loop
 settingStreams = True
