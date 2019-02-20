@@ -24,7 +24,7 @@ mac = getListFromFile("setup/mac.txt", "-r")
 
 # Install dependencies
 install(requirements)
-if platform.startswith('win'):
+if platform == 'win32':
     install(windows)
 if platform.startswith('linux'):
     install(linux)
