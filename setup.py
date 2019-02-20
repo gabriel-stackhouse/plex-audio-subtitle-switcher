@@ -1,6 +1,7 @@
 import subprocess
 import sys
 from sys import platform
+from shutil import copyfile
 
 def install(packages):
     for package in packages:
@@ -16,10 +17,10 @@ def getListFromFile(file, ignoreStart="#"):
 
 
 # Get dependencies
-requirements = getListFromFile("requirements/requirements.txt")
-windows = getListFromFile("requirements/windows.txt", "-r")
+requirements = getListFromFile("setup/requirements.txt")
+windows = getListFromFile("setup/windows.txt", "-r")
 linux = []
-mac = getListFromFile("requirements/mac.txt", "-r")
+mac = getListFromFile("setup/mac.txt", "-r")
 
 # Install dependencies
 install(requirements)
@@ -29,3 +30,7 @@ if platform.startswith('linux'):
     install(linux)
 if platform == 'darwin':    # MacOS
     install(mac)
+
+# Copy config template
+copyfile("./setup/config_template.ini", "config.ini")
+print("Config file created")
