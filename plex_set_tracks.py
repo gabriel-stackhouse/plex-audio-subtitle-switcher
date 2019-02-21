@@ -219,10 +219,7 @@ def getSeasonsFromUser(show):
         # Get seasons user has in library
         seasonNums = []
         for season in show.seasons():
-            if season.title == "Specials":
-                seasonNums.append(0)
-            else:
-                seasonNums.append(int(season.title[7:]))
+            seasonNums.append(season.index)
 
         # Display season numbers
         print("You have the following seasons of '%s': [" % (show.title), end="")
