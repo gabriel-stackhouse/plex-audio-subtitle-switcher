@@ -87,9 +87,9 @@ class OrganizedStreams:
         """ Return 1-index of given :class:`~plexapi.media.AudioStream` or 
             :class:`~plexapi.media.SubtitleStream`. """
         streams = self.allStreams()
-        for i, stream in enumerate(streams):
+        for i, stream in enumerate(streams, 1):
             if givenStream.id == stream.id:
-                return i + 1
+                return i
         raise Exception("AudioStream or SubtitleStream not found.")
         
     def getStreamFromIndex(self, givenIndex):
@@ -186,14 +186,15 @@ def getNumFromUser(prompt):
         Parameters:
             prompt(str): The prompt the user will be given before receiving input.
     """
-    while True:
+    isValidNum = False
+    while not isValidNum:
         givenNum = input(prompt)
         try:
             num = int(givenNum)
         except ValueError:
             print("Error: '%s' is not an integer." % (givenNum))
         else:
-            break
+            isValidNum = True
     return num
         
 def getSeasonsFromUser(show):
@@ -205,7 +206,8 @@ def getSeasonsFromUser(show):
             show(:class:`~plexapi.video.Show`): The show the user will be choosing
                 seasons from.
     """
-    while True:
+    allSeasonsValid = False
+    while not allSeasonsValid:
     
         # Get seasons user has in library
         seasonNums = []
@@ -251,8 +253,10 @@ def getSeasonsFromUser(show):
                 
         # If we got through all seasons successfully, they are all valid
         if curSeasonIsValid == True:
-            # Return valid seasons to modify
-            return givenSeasonsList
+            allSeasonsValid = True
+
+    # Return valid seasons to modify
+    return givenSeasonsList
     
 def getYesOrNoFromUser(prompt):
     """ Prompts user for a 'y' or 'n' response, then validates. 
@@ -286,7 +290,7 @@ def matchAudio(episodePart, template):
     winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
     winningScore = -1   # Score of AudioStream in the lead
     
-    for i, stream in enumerate(audioStreams):
+    for i, stream in enumerate(audioStreams, 1):
         
         # If title and language code match, AudioStream automatically matches
         if (stream.title and stream.title == template.title and 
@@ -305,13 +309,13 @@ def matchAudio(episodePart, template):
                 curScore += 1
             
             # Index in AudioStreams list
-            if i + 1 == template.audioStreamsIndex:
+            if i == template.audioStreamsIndex:
                 curScore += 1
                 
             # Check if AudioStream is winning
             if curScore > winningScore:
                 winningScore = curScore
-                winningIndex = i + 1
+                winningIndex = i
                 
     if winningScore >= 0:
         return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
@@ -335,7 +339,7 @@ def matchSubtitles(episodePart, template):
     winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
     winningScore = -1   # Score of AudioStream in the lead
     
-    for i, stream in enumerate(subtitleStreams):
+    for i, stream in enumerate(subtitleStreams, 1):
     
         # If title and language code match, SubtitleStream automatically matches
         if (stream.title and stream.title == template.title and 
@@ -362,13 +366,13 @@ def matchSubtitles(episodePart, template):
                 curScore += 1
                 
             # Index in SubtitleStreams list
-            if i + 1 == template.subtitleStreamsIndex:
+            if i == template.subtitleStreamsIndex:
                 curScore += 1
             
             # Check if SubtitleStream is winning
             if curScore > winningScore:
                 winningScore = curScore
-                winningIndex = i + 1
+                winningIndex = i
             
     if winningScore >= 0:
         return subtitleStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
@@ -432,12 +436,12 @@ def printSubtitles(streams, startIndex=1):
             streams(list<:class:`~plexapi.media.SubtitleStream`>): SubtitleStreams to be printsd
             startIndex(int): Index to start at (default = 1)
     """
-    for i, stream in enumerate(streams):
+    for i, stream in enumerate(streams, startIndex):
         selected = ""
         if stream.selected == True:
             selected = "*"
         print("\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-            i + startIndex, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
+            i, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
     return startIndex + len(streams)
     
 def printSuccess(episode, newStream):
@@ -468,7 +472,6 @@ def seasonsToString(seasons):
     """
     seasonString=""
     isFirstSeason = True
-    # i = 0
     for i, s in enumerate(seasons):
         if isFirstSeason:
             seasonString += str(s)
@@ -492,7 +495,8 @@ def signIn(PLEX_URL, PLEX_TOKEN):
     if localSignIn == 'y':
         
         # Connect to Plex server locally
-        while True:
+        isSignedIn = False
+        while not isSignedIn:
             if PLEX_URL == '' or PLEX_TOKEN == '':
                 PLEX_URL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
                 PLEX_TOKEN = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
@@ -503,7 +507,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 session.verify = False
                 plex = PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
                 account = plex.myPlexAccount()
-                break
+                isSignedIn = True
             except:
                 print("Error: Connection failed. Is your login info correct?")
                 PLEX_URL = ''
@@ -537,13 +541,14 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                 
                 # Which user?
                 enableAutoComplete(homeUsers)
-                while True:
+                isValidUser = False
+                while not isValidUser:
                     givenManagedUser = input(prompt)
                     
                     # Check if valid user
                     for user in homeUsers:
                         if user.lower() == givenManagedUser.lower():
-                            break
+                            isValidUser = True
                     print("Error: User does not exist.")
                 disableAutoComplete()
                         
@@ -555,7 +560,8 @@ def signIn(PLEX_URL, PLEX_TOKEN):
 
     # Not signing in locally, so connect to Plex server using MyPlex  
     else:
-        while True:
+        isSignedIn = False
+        while not isSignedIn:
         
             # Get login info from user
             username = input("Plex username: ")
@@ -567,7 +573,7 @@ def signIn(PLEX_URL, PLEX_TOKEN):
             try:
                 account = MyPlexAccount(username, password)
                 plex = account.resource(serverName).connect()
-                break
+                isSignedIn = True
             except:
                 print("Error: Login failed. Are your credentials correct?")
             
@@ -583,7 +589,8 @@ def signIn(PLEX_URL, PLEX_TOKEN):
 plex = signIn(PLEX_URL, PLEX_TOKEN)
 
 # Begin program loop
-while True:
+settingStreams = True
+while settingStreams:
 
     # Get list of TV Show libraries
     showLibraries = []
@@ -599,7 +606,8 @@ while True:
         library = plex.library.section(showLibraries[0])
     else:
         enableAutoComplete(showLibraries)   # Enable tab autocomplete
-        while True:  # Iterate until valid library is chosen
+        gotLibrary = False
+        while not gotLibrary:  # Iterate until valid library is chosen
 
             # Get library from user
             print("Which library is the show in? [", end="")
@@ -609,8 +617,9 @@ while True:
             # Check input 
             for lib in showLibraries:
                 if lib.lower() == givenLibrary.lower():
-                    break
-            print("Error: '%s' is not a TV library." % (givenLibrary))
+                    gotLibrary = True
+            if not gotLibrary:
+                print("Error: '%s' is not a TV library." % (givenLibrary))
         library = plex.library.section(givenLibrary.lower())    # Got valid library
 
     
@@ -622,7 +631,8 @@ while True:
 
     # Get show to modify from user
     enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
-    while True:
+    inLibrary = False
+    while not inLibrary:
         givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
         
         # If 'list' is typed, print shows in library
@@ -634,7 +644,7 @@ while True:
         else:
             try:
                 show = library.get(givenShow)
-                break  # Found show if we got here
+                inLibrary = True  # Found show if we got here
             except NotFound:
                 print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
                 
@@ -656,25 +666,26 @@ while True:
 
 
     # Display settings for another episode?
-    while True:   # Continuously display episodes until user chooses not to
+    displayingEpisodes = True
+    while displayingEpisodes:   # Continuously display episodes until user chooses not to
         # Display another episode?
         displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
-        if displayEpisode == 'n':  # User done displaying episodes
-            break
 
-        # Get season/episode number
-        seasonNum = getNumFromUser("Season number: ")
-        episodeNum = getNumFromUser("Episode number: ")
-        
-        # Print episode settings
-        try:
-            episode = show.episode(season=seasonNum, episode=episodeNum)
-        except (BadRequest, NotFound):
-            print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, 
-                show.title))
-        else:
-            printStreams(episode)
-
+        if displayingEpisodes == 'y':
+            # Get season/episode number
+            seasonNum = getNumFromUser("Season number: ")
+            episodeNum = getNumFromUser("Episode number: ")
+            
+            # Print episode settings
+            try:
+                episode = show.episode(season=seasonNum, episode=episodeNum)
+            except (BadRequest, NotFound):
+                print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum, 
+                    show.title))
+            else:
+                printStreams(episode)
+        else:  # User done displaying episodes
+            displayingEpisodes = False
             
     # Get audio and subtitle streams of displayed episode
     episodePart = episode.media[0].parts[0]         # The episode file
@@ -687,7 +698,8 @@ while True:
     if adjustAudio == 'y':
         
         # Begin validation loop
-        while True:
+        isAudioStream = False
+        while not isAudioStream:
             
             # Get index from user
             audioIndex = getNumFromUser(
@@ -695,8 +707,9 @@ while True:
             
             # Validate index
             if episodeStreams.indexIsAudioStream(audioIndex):
-                break
-            print("Error: Number does not correspond to an audio track.")
+                isAudioStream = True:
+            else:
+                print("Error: Number does not correspond to an audio track.")
 
                 
     # Get index of new subtitle stream from user
@@ -706,7 +719,8 @@ while True:
     if adjustSubtitles == 'y':
         
         # Begin valiation loop
-        while True:
+        isSubtitleStream = False
+        while not isSubtitleStream:
             
             # Get sub index from user
             givenSubIndex = input("Choose the number for the subtitle track you'd like " +
@@ -715,19 +729,19 @@ while True:
             # If left blank, subtitles will be disabled
             if givenSubIndex == "":
                 resetSubtitles = True
-                break
-
-            # Check if it's a valid subtitle stream
-            # Ensure user entered an integer
-            try:
-                subIndex = int(givenSubIndex)
-            except ValueError:
-                print("Error: '%s' is not an integer." % (givenSubIndex)) 
+                isSubtitleStream = True
             else:
-                # Validate
-                if episodeStreams.indexIsSubStream(subIndex) == True:
-                    break
-                print("Error: Number does not correspond to a subtitle track.")
+                # Check if it's a valid subtitle stream
+                # Ensure user entered an integer
+                try:
+                    subIndex = int(givenSubIndex)
+                except ValueError:
+                    print("Error: '%s' is not an integer." % (givenSubIndex)) 
+                else:
+                    # Validate
+                    if episodeStreams.indexIsSubStream(subIndex) == True:
+                        isSubtitleStream = True
+                    print("Error: Number does not correspond to a subtitle track.")
 
 
     # Final prompt
@@ -846,4 +860,4 @@ while True:
     # Completed!
     newShow = getYesOrNoFromUser("Operations complete! Modify another show? [Y/n]: ")
     if newShow == 'n':
-        break
+        settingStreams = False
