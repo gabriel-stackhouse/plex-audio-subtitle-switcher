@@ -4,6 +4,7 @@ from plexapi.exceptions import NotFound
 from plexapi.exceptions import BadRequest
 from plexapi.media import AudioStream
 from plexapi.media import SubtitleStream
+from shutil import copyfile
 import getpass
 import sys
 import requests
@@ -538,10 +539,16 @@ def signIn():
 def signInLocally():
     """ Returns a :class:`~plexapi.server.PlexServer` by connecting through the local network."""
     # Get URL and token from config.ini
+    plexURL = ""
+    plexToken = ""
     config = configparser.ConfigParser()
-    config.read('config.ini')
-    plexURL = config['LOGIN']['PLEX_URL']
-    plexToken = config['LOGIN']['PLEX_TOKEN']
+    try:
+        config.read('config.ini')
+        plexURL = config['LOGIN']['PLEX_URL']
+        plexToken = config['LOGIN']['PLEX_TOKEN']
+    except KeyError:
+        copyfile("./setup/config_template.ini", "config.ini")
+        print("Error reading config.ini. New file created.")
 
     # Attempt to sign in
     isSignedIn = False
@@ -561,10 +568,11 @@ def signInLocally():
             plexServer = PlexServer(plexURL, plexToken, session=session)
             account = plexServer.myPlexAccount()
             isSignedIn = True
-        except (requests.ConnectionError, BadRequest) as error:
+        except (requests.ConnectionError, requests.exceptions.MissingSchema, BadRequest) as error:
 
             # Connection failed
-            if isinstance(error, requests.ConnectionError):
+            if (isinstance(error, requests.ConnectionError) or
+                    isinstance(error, requests.exceptions.MissingSchema)):
                 print("Error: No server found at the given URL.")
             else:
                 print("Error: Invalid API token.")
