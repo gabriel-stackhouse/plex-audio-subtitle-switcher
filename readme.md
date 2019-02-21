@@ -22,15 +22,11 @@ below will do this automatically, so ensure that git is installed before running
 
 Install on Windows:
 
-    pip install -r ./setup/windows.txt
+    python ./setup.py
     
-Linux:
+Or on Linux/MacOS:
 
-    pip3 install -r ./setup/linux.txt
-    
-Or MacOS:
-
-    pip3 install -r ./setup/mac.txt
+    python3 ./setup.py
 
 Running the Script
 ------------------

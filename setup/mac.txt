@@ -1,2 +1,2 @@
 -r requirements.txt
-gnureadline
+gnureadline>=6.3.8
