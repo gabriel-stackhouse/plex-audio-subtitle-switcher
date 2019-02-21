@@ -10,7 +10,7 @@ def install(packages):
             packages(list<str>): Packages to install, in requirements.txt format
     """
     for package in packages:
-        subprocess.call([sys.executable, "-m", "pip", "install", package])
+        subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", package])
 
 def getListFromFile(file, ignoreStart="#"):
     """ Return list of packages to install given a requirements.txt file.
@@ -46,3 +46,6 @@ if sys.platform == 'darwin':    # MacOS
 if not os.path.isfile("config.ini"):
     copyfile("./setup/config_template.ini", "config.ini")
     print("Config file created")
+
+# Finished
+print("Setup complete")
