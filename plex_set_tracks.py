@@ -219,7 +219,7 @@ def getSeasonsFromUser(show):
 
         # Display season numbers 
         print("You have the following seasons of '%s': [" % (show.title), end="")
-        print("|".join([str(s) for s in seasonNums]))
+        print("|".join([str(s) for s in seasonNums]), end="")
         print("]")
 
         # Choose seasons to modify
@@ -549,7 +549,8 @@ def signIn(PLEX_URL, PLEX_TOKEN):
                     for user in homeUsers:
                         if user.lower() == givenManagedUser.lower():
                             isValidUser = True
-                    print("Error: User does not exist.")
+                    if not isValidUser:
+                        print("Error: User does not exist.")
                 disableAutoComplete()
                         
                 # Sign in with managed user
@@ -611,7 +612,7 @@ while settingStreams:
 
             # Get library from user
             print("Which library is the show in? [", end="")
-            print("|".join(showLibraries))  # Display all TV library options
+            print("|".join(showLibraries), end="")  # Display all TV library options
             givenLibrary = input("]: ")    # Choose library
 
             # Check input 
@@ -707,7 +708,7 @@ while settingStreams:
             
             # Validate index
             if episodeStreams.indexIsAudioStream(audioIndex):
-                isAudioStream = True:
+                isAudioStream = True
             else:
                 print("Error: Number does not correspond to an audio track.")
 
@@ -741,7 +742,8 @@ while settingStreams:
                     # Validate
                     if episodeStreams.indexIsSubStream(subIndex) == True:
                         isSubtitleStream = True
-                    print("Error: Number does not correspond to a subtitle track.")
+                    else:
+                        print("Error: Number does not correspond to a subtitle track.")
 
 
     # Final prompt
