@@ -291,7 +291,7 @@ def matchAudio(episodePart, template):
     # Initialize variables
     winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
     winningScore = -1   # Score of AudioStream in the lead
-    
+
     for i, stream in enumerate(audioStreams, 1):
 
         # If title and language code match, AudioStream automatically matches
@@ -319,7 +319,6 @@ def matchAudio(episodePart, template):
                 winningScore = curScore
                 winningIndex = i
 
-        
     if winningScore >= 0:
         return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
 
@@ -378,7 +377,6 @@ def matchSubtitles(episodePart, template):
                 winningScore = curScore
                 winningIndex = i
 
-        
     if winningScore >= 0:
         return subtitleStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
 
@@ -727,7 +725,7 @@ while settingStreams:
         displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
 
         if displayEpisode == 'y':
-            
+
             # Get season/episode number
             seasonNum = getNumFromUser("Season number: ")
             episodeNum = getNumFromUser("Episode number: ")
@@ -742,7 +740,7 @@ while settingStreams:
                 printStreams(episode)
         else:  # User done displaying episodes
             displayingEpisodes = False
-            
+
     # Get audio and subtitle streams of displayed episode
     episodePart = episode.media[0].parts[0]         # The episode file
     episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams

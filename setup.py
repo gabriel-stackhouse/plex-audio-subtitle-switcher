@@ -3,6 +3,7 @@ import sys
 import os.path
 from shutil import copyfile
 
+
 def install(packages):
     """ Invokes pip to install list of packages.
 
@@ -11,6 +12,7 @@ def install(packages):
     """
     for package in packages:
         subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+
 
 def getListFromFile(file, ignoreStart="#"):
     """ Return list of packages to install given a requirements.txt file.
