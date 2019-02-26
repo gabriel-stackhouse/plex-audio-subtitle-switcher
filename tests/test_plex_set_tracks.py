@@ -1,17 +1,6 @@
 import plex_set_tracks
 
 
-class UserInputs:
-    """ Container class to hold a list of user inputs to be passed into input() function"""
-    def __init__(self, inputs):
-        self.inputs = inputs
-
-    """ Creates a generator to iterate over list of user inputs."""
-    def create_generator(self):
-        for value in self.inputs:
-            yield value
-
-
 def spoof_input(monkeypatch, inputList):
     """ Given a list of user input values, spoofs the input() function to to iterate over each item
         in the list with each successive call.
@@ -20,8 +9,7 @@ def spoof_input(monkeypatch, inputList):
             monkeypatch(MonkeyPatch): Monkeypatch from pytest.
             inputList(List<str>): List of input values to iterate over.
     """
-    inputs = UserInputs(inputList)
-    gen = inputs.create_generator()
+    gen = (value for value in inputList)
     monkeypatch.setattr('builtins.input', lambda x: next(gen))
 
 
