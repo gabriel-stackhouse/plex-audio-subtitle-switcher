@@ -86,11 +86,9 @@ class OrganizedStreams:
         """ Return 1-index of given :class:`~plexapi.media.AudioStream` or
             :class:`~plexapi.media.SubtitleStream`. """
         streams = self.allStreams()
-        count = 1
-        for stream in streams:
+        for i, stream in enumerate(streams, 1):
             if givenStream.id == stream.id:
-                return count
-            count += 1
+                return i
         raise Exception("AudioStream or SubtitleStream not found.")
 
     def getStreamFromIndex(self, givenIndex):
@@ -223,13 +221,7 @@ def getSeasonsFromUser(show):
 
         # Display season numbers
         print("You have the following seasons of '%s': [" % (show.title), end="")
-        isFirstSeason = True
-        for season in seasonNums:
-            if isFirstSeason:
-                print("%d" % (season), end="")
-                isFirstSeason = False
-            else:
-                print("|%d" % (season), end="")
+        print("|".join([str(s) for s in seasonNums]), end="")
         print("]")
 
         # Choose seasons to modify
@@ -273,14 +265,12 @@ def getYesOrNoFromUser(prompt):
         Parameters:
             prompt(str): The prompt the user will be given before receiving input.
     """
-    isValidInput = False
-    while not isValidInput:
+    while True:
         givenInput = input(prompt).lower()
         if givenInput == 'y' or givenInput == 'n':
-            isValidInput = True
+            return givenInput
         else:
             print("Error: Invalid input")
-    return givenInput
 
 
 def matchAudio(episodePart, template):
@@ -301,9 +291,8 @@ def matchAudio(episodePart, template):
     # Initialize variables
     winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
     winningScore = -1   # Score of AudioStream in the lead
-    curIndex = 1        # Current index being scored
-
-    for stream in audioStreams:
+    
+    for i, stream in enumerate(audioStreams, 1):
 
         # If title and language code match, AudioStream automatically matches
         if (stream.title and stream.title == template.title and
@@ -322,17 +311,15 @@ def matchAudio(episodePart, template):
                 curScore += 1
 
             # Index in AudioStreams list
-            if curIndex == template.audioStreamsIndex:
+            if i == template.audioStreamsIndex:
                 curScore += 1
 
             # Check if AudioStream is winning
             if curScore > winningScore:
                 winningScore = curScore
-                winningIndex = curIndex
+                winningIndex = i
 
-        # Increment counter
-        curIndex += 1
-
+        
     if winningScore >= 0:
         return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
 
@@ -355,9 +342,8 @@ def matchSubtitles(episodePart, template):
     # Initialize variables
     winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
     winningScore = -1   # Score of AudioStream in the lead
-    curIndex = 1        # Current index being scored
 
-    for stream in subtitleStreams:
+    for i, stream in enumerate(subtitleStreams, 1):
 
         # If title and language code match, SubtitleStream automatically matches
         if (stream.title and stream.title == template.title and
@@ -384,17 +370,15 @@ def matchSubtitles(episodePart, template):
                 curScore += 1
 
             # Index in SubtitleStreams list
-            if curIndex == template.subtitleStreamsIndex:
+            if i == template.subtitleStreamsIndex:
                 curScore += 1
 
             # Check if SubtitleStream is winning
             if curScore > winningScore:
                 winningScore = curScore
-                winningIndex = curIndex
+                winningIndex = i
 
-        # Increment counter
-        curIndex += 1
-
+        
     if winningScore >= 0:
         return subtitleStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
 
@@ -460,15 +444,13 @@ def printSubtitles(streams, startIndex=1):
             streams(list<:class:`~plexapi.media.SubtitleStream`>): SubtitleStreams to be printsd
             startIndex(int): Index to start at (default = 1)
     """
-    count = startIndex
-    for stream in streams:
+    for i, stream in enumerate(streams, startIndex):
         selected = ""
         if stream.selected:
             selected = "*"
         print("\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-            count, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
-        count += 1
-    return count
+            i, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
+    return startIndex + len(streams)
 
 
 def printSuccess(episode, newStream):
@@ -500,8 +482,7 @@ def seasonsToString(seasons):
     """
     seasonString = ""
     isFirstSeason = True
-    i = 0
-    for s in seasons:
+    for i, s in enumerate(seasons):
         if isFirstSeason:
             seasonString += str(s)
             isFirstSeason = False
@@ -509,7 +490,6 @@ def seasonsToString(seasons):
             # Who gave the grammar nazi a software degree?
             seasonString += "%s %s%s" % (
                 "," if len(seasons) > 2 else "", "and " if i == len(seasons) - 1 else "", s)
-        i += 1
     return seasonString
 
 
@@ -692,20 +672,13 @@ while settingStreams:
 
             # Get library from user
             print("Which library is the show in? [", end="")
-            isFirstLibrary = True
-            for lib in showLibraries:       # Display all TV library options
-                if isFirstLibrary:
-                    print(lib, end="")
-                    isFirstLibrary = False
-                else:
-                    print("|%s" % (lib), end="")
+            print("|".join(showLibraries), end="")  # Display all TV library options
             givenLibrary = input("]: ")    # Choose library
 
             # Check input
             for lib in showLibraries:
                 if lib.lower() == givenLibrary.lower():
                     gotLibrary = True
-                    break
             if not gotLibrary:
                 print("Error: '%s' is not a TV library." % (givenLibrary))
         library = plex.library.section(givenLibrary.lower())    # Got valid library
@@ -730,7 +703,7 @@ while settingStreams:
         else:
             try:
                 show = library.get(givenShow)
-                inLibrary = True    # Found show if we got here
+                inLibrary = True  # Found show if we got here
             except NotFound:
                 print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
 
@@ -750,11 +723,11 @@ while settingStreams:
     # Display settings for another episode?
     displayingEpisodes = True
     while displayingEpisodes:   # Continuously display episodes until user chooses not to
-
         # Display another episode?
         displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
-        if displayEpisode == 'y':
 
+        if displayEpisode == 'y':
+            
             # Get season/episode number
             seasonNum = getNumFromUser("Season number: ")
             episodeNum = getNumFromUser("Episode number: ")
@@ -767,10 +740,9 @@ while settingStreams:
                       show.title))
             else:
                 printStreams(episode)
-
-        else:   # User done displaying episodes
+        else:  # User done displaying episodes
             displayingEpisodes = False
-
+            
     # Get audio and subtitle streams of displayed episode
     episodePart = episode.media[0].parts[0]         # The episode file
     episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
@@ -813,17 +785,14 @@ while settingStreams:
             if givenSubIndex == "":
                 resetSubtitles = True
                 isSubtitleStream = True
-
-            # Else, check if it's a valid subtitle stream
             else:
-
+                # Check if it's a valid subtitle stream
                 # Ensure user entered an integer
                 try:
                     subIndex = int(givenSubIndex)
                 except ValueError:
                     print("Error: '%s' is not an integer." % (givenSubIndex))
                 else:
-
                     # Validate
                     if episodeStreams.indexIsSubStream(subIndex):
                         isSubtitleStream = True
