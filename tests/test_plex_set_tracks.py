@@ -14,9 +14,8 @@ def spoof_input(monkeypatch, inputList):
 
 
 def test_get_num(monkeypatch):
-    spoof_input(monkeypatch, ["7", "1024", "not_valid", "42"])
+    spoof_input(monkeypatch, ["7", "not_valid", "42"])
     assert int(plex_set_tracks.getNumFromUser("")) == 7
-    assert int(plex_set_tracks.getNumFromUser("")) == 1024
     assert int(plex_set_tracks.getNumFromUser("")) == 42
 
 
