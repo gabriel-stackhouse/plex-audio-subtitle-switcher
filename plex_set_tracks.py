@@ -646,273 +646,275 @@ def signInOnline():
 ###################################################################################################
 
 
-# Get Plex server instance
-plex = signIn()
+if __name__ == "__main__":
 
-# Begin program loop
-settingStreams = True
-while settingStreams:
+    # Get Plex server instance
+    plex = signIn()
 
-    # Get list of TV Show libraries
-    showLibraries = []
-    for lib in plex.library.sections():
-        if lib.type == "show":
-            showLibraries.append(lib.title)
+    # Begin program loop
+    settingStreams = True
+    while settingStreams:
 
-    # Choose library
-    if len(showLibraries) < 1:
-        print("Error: No TV Show libraries linked to account.")
-        sys.exit(1)
-    elif len(showLibraries) == 1:
-        library = plex.library.section(showLibraries[0])
-    else:
-        enableAutoComplete(showLibraries)   # Enable tab autocomplete
-        gotLibrary = False
-        while not gotLibrary:  # Iterate until valid library is chosen
+        # Get list of TV Show libraries
+        showLibraries = []
+        for lib in plex.library.sections():
+            if lib.type == "show":
+                showLibraries.append(lib.title)
 
-            # Get library from user
-            print("Which library is the show in? [", end="")
-            print("|".join(showLibraries), end="")  # Display all TV library options
-            givenLibrary = input("]: ")    # Choose library
-
-            # Check input
-            for lib in showLibraries:
-                if lib.lower() == givenLibrary.lower():
-                    gotLibrary = True
-            if not gotLibrary:
-                print("Error: '%s' is not a TV library." % (givenLibrary))
-        library = plex.library.section(givenLibrary.lower())    # Got valid library
-
-    # Get list of shows from library
-    showTitles = []
-    for show in library.search(libtype="show"):
-        showTitles.append(show.title)
-
-    # Get show to modify from user
-    enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
-    inLibrary = False
-    while not inLibrary:
-        givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
-
-        # If 'list' is typed, print shows in library
-        if givenShow.lower() == "list":
-            for show in showTitles:
-                print(show)
-
-        # Otherwise, get show
+        # Choose library
+        if len(showLibraries) < 1:
+            print("Error: No TV Show libraries linked to account.")
+            sys.exit(1)
+        elif len(showLibraries) == 1:
+            library = plex.library.section(showLibraries[0])
         else:
-            try:
-                show = library.get(givenShow)
-                inLibrary = True  # Found show if we got here
-            except NotFound:
-                print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
+            enableAutoComplete(showLibraries)   # Enable tab autocomplete
+            gotLibrary = False
+            while not gotLibrary:  # Iterate until valid library is chosen
 
-    disableAutoComplete()   # Disable autocomplete
+                # Get library from user
+                print("Which library is the show in? [", end="")
+                print("|".join(showLibraries), end="")  # Display all TV library options
+                givenLibrary = input("]: ")    # Choose library
 
-    # Get seasons of show to modify from user
-    seasonsToModify = getSeasonsFromUser(show)
+                # Check input
+                for lib in showLibraries:
+                    if lib.lower() == givenLibrary.lower():
+                        gotLibrary = True
+                if not gotLibrary:
+                    print("Error: '%s' is not a TV library." % (givenLibrary))
+            library = plex.library.section(givenLibrary.lower())    # Got valid library
 
-    # Print all seasons we'll modify
-    print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
-        "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
+        # Get list of shows from library
+        showTitles = []
+        for show in library.search(libtype="show"):
+            showTitles.append(show.title)
 
-    # Print audio & subtitle streams for first episode
-    episode = show.season(int(seasonsToModify[0])).episodes()[0]
-    printStreams(episode)
+        # Get show to modify from user
+        enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
+        inLibrary = False
+        while not inLibrary:
+            givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
 
-    # Display settings for another episode?
-    displayingEpisodes = True
-    while displayingEpisodes:   # Continuously display episodes until user chooses not to
-        # Display another episode?
-        displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
+            # If 'list' is typed, print shows in library
+            if givenShow.lower() == "list":
+                for show in showTitles:
+                    print(show)
 
-        if displayEpisode == 'y':
-            
-            # Get season/episode number
-            seasonNum = getNumFromUser("Season number: ")
-            episodeNum = getNumFromUser("Episode number: ")
-
-            # Print episode settings
-            try:
-                episode = show.episode(season=seasonNum, episode=episodeNum)
-            except (BadRequest, NotFound):
-                print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum,
-                      show.title))
+            # Otherwise, get show
             else:
-                printStreams(episode)
-        else:  # User done displaying episodes
-            displayingEpisodes = False
-            
-    # Get audio and subtitle streams of displayed episode
-    episodePart = episode.media[0].parts[0]         # The episode file
-    episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
-
-    # Get index of new audio stream from user
-    audioIndex = None
-    adjustAudio = getYesOrNoFromUser("Do you want to switch audio tracks? [Y/n]: ")
-    if adjustAudio == 'y':
-
-        # Begin validation loop
-        isAudioStream = False
-        while not isAudioStream:
-
-            # Get index from user
-            audioIndex = getNumFromUser(
-                "Choose the number for the audio track you'd like to switch to: ")
-
-            # Validate index
-            if episodeStreams.indexIsAudioStream(audioIndex):
-                isAudioStream = True
-            else:
-                print("Error: Number does not correspond to an audio track.")
-
-    # Get index of new subtitle stream from user
-    subIndex = None
-    resetSubtitles = False
-    adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
-    if adjustSubtitles == 'y':
-
-        # Begin valiation loop
-        isSubtitleStream = False
-        while not isSubtitleStream:
-
-            # Get sub index from user
-            givenSubIndex = input(
-                "Choose the number for the subtitle track you'd like to switch to, or leave blank "
-                "to disable subtitles: ").lower()
-
-            # If left blank, subtitles will be disabled
-            if givenSubIndex == "":
-                resetSubtitles = True
-                isSubtitleStream = True
-            else:
-                # Check if it's a valid subtitle stream
-                # Ensure user entered an integer
                 try:
-                    subIndex = int(givenSubIndex)
-                except ValueError:
-                    print("Error: '%s' is not an integer." % (givenSubIndex))
-                else:
-                    # Validate
-                    if episodeStreams.indexIsSubStream(subIndex):
-                        isSubtitleStream = True
-                    else:
-                        print("Error: Number does not correspond to a subtitle track.")
+                    show = library.get(givenShow)
+                    inLibrary = True  # Found show if we got here
+                except NotFound:
+                    print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
 
-    # Final prompt
-    if adjustAudio == 'y' or adjustSubtitles == 'y':
+        disableAutoComplete()   # Disable autocomplete
 
-        # Print show and seasons we will modify
-        print("Matching Season%s %s of %s to the following tracks:\n" % (
+        # Get seasons of show to modify from user
+        seasonsToModify = getSeasonsFromUser(show)
+
+        # Print all seasons we'll modify
+        print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
             "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
 
-        # Print audio stream template
+        # Print audio & subtitle streams for first episode
+        episode = show.season(int(seasonsToModify[0])).episodes()[0]
+        printStreams(episode)
+
+        # Display settings for another episode?
+        displayingEpisodes = True
+        while displayingEpisodes:   # Continuously display episodes until user chooses not to
+            # Display another episode?
+            displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
+
+            if displayEpisode == 'y':
+
+                # Get season/episode number
+                seasonNum = getNumFromUser("Season number: ")
+                episodeNum = getNumFromUser("Episode number: ")
+
+                # Print episode settings
+                try:
+                    episode = show.episode(season=seasonNum, episode=episodeNum)
+                except (BadRequest, NotFound):
+                    print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum,
+                          show.title))
+                else:
+                    printStreams(episode)
+            else:  # User done displaying episodes
+                displayingEpisodes = False
+
+        # Get audio and subtitle streams of displayed episode
+        episodePart = episode.media[0].parts[0]         # The episode file
+        episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
+
+        # Get index of new audio stream from user
+        audioIndex = None
+        adjustAudio = getYesOrNoFromUser("Do you want to switch audio tracks? [Y/n]: ")
         if adjustAudio == 'y':
-            newAudio = episodeStreams.getStreamFromIndex(audioIndex)
-            print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-                newAudio.title, newAudio.languageCode, newAudio.codec,
-                newAudio.audioChannelLayout))
 
-        # Print subtitle stream template
-        if adjustSubtitles == 'y' and not resetSubtitles:
-            newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
-            print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-                newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec,
-                newSubtitle.forced))
-        elif adjustSubtitles == 'y' and resetSubtitles:
-            print("\tSubtitles | Disabled")
+            # Begin validation loop
+            isAudioStream = False
+            while not isAudioStream:
 
-        # Ask user whether to proceed
-        willProceed = getYesOrNoFromUser("\nProceed? [Y/n]: ")
-        if willProceed == 'n':
-            adjustAudio = 'n'
-            adjustSubtitles = 'n'
+                # Get index from user
+                audioIndex = getNumFromUser(
+                    "Choose the number for the audio track you'd like to switch to: ")
 
-    # Set audio/subtitle streams for highlighted episode
-    if adjustAudio == 'y':
+                # Validate index
+                if episodeStreams.indexIsAudioStream(audioIndex):
+                    isAudioStream = True
+                else:
+                    print("Error: Number does not correspond to an audio track.")
 
-        # Set audio settings for chosen episode
-        episodePart.setDefaultAudioStream(newAudio)
+        # Get index of new subtitle stream from user
+        subIndex = None
+        resetSubtitles = False
+        adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
+        if adjustSubtitles == 'y':
 
-        # Create template for matching future episodes
-        audioTemplate = AudioStreamInfo(newAudio, audioIndex)
+            # Begin valiation loop
+            isSubtitleStream = False
+            while not isSubtitleStream:
 
-        # Print result
-        printSuccess(episode, newAudio)
+                # Get sub index from user
+                givenSubIndex = input(
+                    "Choose the number for the subtitle track you'd like to switch to, or leave blank "
+                    "to disable subtitles: ").lower()
 
-    # Adjust subtitles
-    if adjustSubtitles == 'y':
+                # If left blank, subtitles will be disabled
+                if givenSubIndex == "":
+                    resetSubtitles = True
+                    isSubtitleStream = True
+                else:
+                    # Check if it's a valid subtitle stream
+                    # Ensure user entered an integer
+                    try:
+                        subIndex = int(givenSubIndex)
+                    except ValueError:
+                        print("Error: '%s' is not an integer." % (givenSubIndex))
+                    else:
+                        # Validate
+                        if episodeStreams.indexIsSubStream(subIndex):
+                            isSubtitleStream = True
+                        else:
+                            print("Error: Number does not correspond to a subtitle track.")
 
-        # Reset subtitles if user chose to do so
-        if resetSubtitles:
+        # Final prompt
+        if adjustAudio == 'y' or adjustSubtitles == 'y':
 
-            # Reset subtitles
-            episodePart.resetDefaultSubtitleStream()
-            printResetSubSuccess(episode)
+            # Print show and seasons we will modify
+            print("Matching Season%s %s of %s to the following tracks:\n" % (
+                "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
 
-        else:
+            # Print audio stream template
+            if adjustAudio == 'y':
+                newAudio = episodeStreams.getStreamFromIndex(audioIndex)
+                print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
+                    newAudio.title, newAudio.languageCode, newAudio.codec,
+                    newAudio.audioChannelLayout))
 
-            # Set subtitle settings for the chosen episode
-            episodePart.setDefaultSubtitleStream(newSubtitle)
+            # Print subtitle stream template
+            if adjustSubtitles == 'y' and not resetSubtitles:
+                newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
+                print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
+                    newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec,
+                    newSubtitle.forced))
+            elif adjustSubtitles == 'y' and resetSubtitles:
+                print("\tSubtitles | Disabled")
+
+            # Ask user whether to proceed
+            willProceed = getYesOrNoFromUser("\nProceed? [Y/n]: ")
+            if willProceed == 'n':
+                adjustAudio = 'n'
+                adjustSubtitles = 'n'
+
+        # Set audio/subtitle streams for highlighted episode
+        if adjustAudio == 'y':
+
+            # Set audio settings for chosen episode
+            episodePart.setDefaultAudioStream(newAudio)
 
             # Create template for matching future episodes
-            subtitleTemplate = SubtitleStreamInfo(
-                newSubtitle, subIndex, subIndex - len(episodeStreams.audioStreams))
+            audioTemplate = AudioStreamInfo(newAudio, audioIndex)
 
             # Print result
-            printSuccess(episode, newSubtitle)
+            printSuccess(episode, newAudio)
 
-    # Batch set audio/subtitle streams for all chosen episodes
-    if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
+        # Adjust subtitles
+        if adjustSubtitles == 'y':
 
-        for seasonNum in seasonsToModify:    # Each season
-            season = show.season(int(seasonNum))
+            # Reset subtitles if user chose to do so
+            if resetSubtitles:
 
-            for episode in season.episodes():    # Each episode in each season
-                episode.reload()
+                # Reset subtitles
+                episodePart.resetDefaultSubtitleStream()
+                printResetSubSuccess(episode)
 
-                for part in episode.media[0].parts:    # Each MediaPart (file) for each episode
+            else:
 
-                    # Skip re-adjusting file we already modified
-                    if part.id == episodePart.id:
-                        continue    # Next file
+                # Set subtitle settings for the chosen episode
+                episodePart.setDefaultSubtitleStream(newSubtitle)
 
-                    # Set audio settings for MediaPart
-                    if adjustAudio == 'y':
+                # Create template for matching future episodes
+                subtitleTemplate = SubtitleStreamInfo(
+                    newSubtitle, subIndex, subIndex - len(episodeStreams.audioStreams))
 
-                        # Get closest match from template audio
-                        newAudio = matchAudio(part, audioTemplate)
+                # Print result
+                printSuccess(episode, newSubtitle)
 
-                        if newAudio:
-                            # Set audio as default
-                            part.setDefaultAudioStream(newAudio)
+        # Batch set audio/subtitle streams for all chosen episodes
+        if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
 
-                            # Print result
-                            printSuccess(episode, newAudio)
-                        else:
-                            print("No audio matches found for '%s'" % episodeToString(episode))
+            for seasonNum in seasonsToModify:    # Each season
+                season = show.season(int(seasonNum))
 
-                    # Reset subtitles if user chose to
-                    if adjustSubtitles == 'y' and resetSubtitles:
-                        part.resetDefaultSubtitleStream()
-                        printResetSubSuccess(episode)
+                for episode in season.episodes():    # Each episode in each season
+                    episode.reload()
 
-                    # Set subtitle settings for MediaPart
-                    elif adjustSubtitles == 'y':
+                    for part in episode.media[0].parts:    # Each MediaPart (file) for each episode
 
-                        # Get closest match from template subtitle
-                        newSubtitle = matchSubtitles(part, subtitleTemplate)
+                        # Skip re-adjusting file we already modified
+                        if part.id == episodePart.id:
+                            continue    # Next file
 
-                        if newSubtitle:
-                            # Set subtitle as default
-                            part.setDefaultSubtitleStream(newSubtitle)
+                        # Set audio settings for MediaPart
+                        if adjustAudio == 'y':
 
-                            # Print result
-                            printSuccess(episode, newSubtitle)
-                        else:
-                            print("No subtitle matches found for '%s'" % episodeToString(episode))
+                            # Get closest match from template audio
+                            newAudio = matchAudio(part, audioTemplate)
 
-    # Completed!
-    newShow = getYesOrNoFromUser("Operations complete! Modify another show? [Y/n]: ")
-    if newShow == 'n':
-        settingStreams = False
+                            if newAudio:
+                                # Set audio as default
+                                part.setDefaultAudioStream(newAudio)
+
+                                # Print result
+                                printSuccess(episode, newAudio)
+                            else:
+                                print("No audio matches found for '%s'" % episodeToString(episode))
+
+                        # Reset subtitles if user chose to
+                        if adjustSubtitles == 'y' and resetSubtitles:
+                            part.resetDefaultSubtitleStream()
+                            printResetSubSuccess(episode)
+
+                        # Set subtitle settings for MediaPart
+                        elif adjustSubtitles == 'y':
+
+                            # Get closest match from template subtitle
+                            newSubtitle = matchSubtitles(part, subtitleTemplate)
+
+                            if newSubtitle:
+                                # Set subtitle as default
+                                part.setDefaultSubtitleStream(newSubtitle)
+
+                                # Print result
+                                printSuccess(episode, newSubtitle)
+                            else:
+                                print("No subtitle matches found for '%s'" % episodeToString(episode))
+
+        # Completed!
+        newShow = getYesOrNoFromUser("Operations complete! Modify another show? [Y/n]: ")
+        if newShow == 'n':
+            settingStreams = False
