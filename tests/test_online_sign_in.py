@@ -18,9 +18,9 @@ def test_sign_in_online(monkeypatch, plex):
     # Spoof input and getpass to use login info
     utils.spoof_input(monkeypatch, [username, server_name])
     monkeypatch.setattr('getpass.getpass', lambda x: password)
-    requests.packages.urllib3.disable_warnings()
 
     # Test signing in online
+    requests.packages.urllib3.disable_warnings()
     online_plex = plex_set_tracks.signInOnline()
     assert plex.machineIdentifier == online_plex.machineIdentifier
     assert plex.friendlyName == online_plex.friendlyName
