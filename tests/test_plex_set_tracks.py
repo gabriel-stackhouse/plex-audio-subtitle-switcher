@@ -1,4 +1,5 @@
 import plex_set_tracks
+import pytest
 
 
 def spoof_input(monkeypatch, input_list):
@@ -24,3 +25,11 @@ def test_get_yes_or_no(monkeypatch):
     assert plex_set_tracks.getYesOrNoFromUser("") == "y"
     assert plex_set_tracks.getYesOrNoFromUser("") == "n"
     assert plex_set_tracks.getYesOrNoFromUser("") == "y"
+
+@pytest.mark.timeout(10)
+def test_sign_in_locally(monkeypatch, plex):
+    spoof_input(monkeypatch, ['n'])
+    local_plex = plex_set_tracks.signInLocally()
+    assert plex.machineIdentifier == local_plex.machineIdentifier
+    assert plex._baseurl == local_plex._baseurl
+    assert plex._token == local_plex._token
