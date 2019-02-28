@@ -108,7 +108,7 @@ class OrganizedStreams:
     def indexIsSubStream(self, givenIndex):
         """ Return True if givenIndex is the index of a :class:`~plexapi.media.SubtitleStream`,
             False otherwise. """
-        return givenIndex > len(self.audioStreams) and givenIndex <= \
+        return len(self.audioStreams) < givenIndex <= \
             len(self.audioStreams) + len(self.subtitleStreams)
 
 
@@ -564,20 +564,19 @@ def signInLocally():
 
         # If yes, sign in as managed user
         if useManagedUser == 'y':
-            plexServer = signInManagedUser(plexServer, account, session)
+            plexServer = signInManagedUser(plexServer)
     return plexServer
 
 
-def signInManagedUser(plex, account, session):
+def signInManagedUser(plexServer):
     """ Prompts for a managed user, then returns a :class:`~plexapi.server.PlexServer` instance
         for said user.
 
         Parameters:
-            plex(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
-            account(:class:`plexapi.myplex.MyPlexAccount`): MyPlexAccount of the account owner.
-            session(requests.session): Session object used in account owner sign-in.
+            plexServer(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
     """
     # Get all home users
+    account = plexServer.myPlexAccount()
     homeUsers = []
     for user in account.users():
         if user.home:
@@ -612,7 +611,8 @@ def signInManagedUser(plex, account, session):
     # Sign in with managed user
     print("Signing in as '%s'..." % givenManagedUser)
     managedUser = account.user(givenManagedUser)
-    return PlexServer(plex._baseurl, managedUser.get_token(plex.machineIdentifier), session=session)
+    return PlexServer(plexServer._baseurl, managedUser.get_token(plexServer.machineIdentifier),
+                      session=plexServer._session)
 
 
 def signInOnline():
