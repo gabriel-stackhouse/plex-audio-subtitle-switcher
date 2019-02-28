@@ -564,11 +564,11 @@ def signInLocally():
 
         # If yes, sign in as managed user
         if useManagedUser == 'y':
-            plexServer = signInManagedUser(plexServer, account, session, plexURL)
+            plexServer = signInManagedUser(plexServer, account, session)
     return plexServer
 
 
-def signInManagedUser(plex, account, session, plexURL):
+def signInManagedUser(plex, account, session):
     """ Prompts for a managed user, then returns a :class:`~plexapi.server.PlexServer` instance
         for said user.
 
@@ -613,7 +613,7 @@ def signInManagedUser(plex, account, session, plexURL):
     # Sign in with managed user
     print("Signing in as '%s'..." % givenManagedUser)
     managedUser = account.user(givenManagedUser)
-    return PlexServer(plexURL, managedUser.get_token(plex.machineIdentifier), session=session)
+    return PlexServer(plex._baseurl, managedUser.get_token(plex.machineIdentifier), session=session)
 
 
 def signInOnline():
