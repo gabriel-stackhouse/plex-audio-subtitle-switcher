@@ -27,6 +27,7 @@ def test_get_yes_or_no(monkeypatch):
     assert plex_set_tracks.getYesOrNoFromUser("") == "n"
     assert plex_set_tracks.getYesOrNoFromUser("") == "y"
 
+
 @pytest.mark.timeout(10)
 def test_sign_in_locally(monkeypatch, plex):
     spoof_input(monkeypatch, ['n'])
