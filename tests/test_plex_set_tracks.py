@@ -1,7 +1,7 @@
 import plex_set_tracks
 import pytest
 import requests
-import utils
+from . import conftest as utils
 
 
 def test_get_num(monkeypatch):

@@ -2,7 +2,7 @@ import os
 import plex_set_tracks
 import requests
 import pytest
-import utils
+from . import conftest as utils
 
 
 @pytest.mark.timeout(45)
