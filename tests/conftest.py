@@ -1,6 +1,7 @@
 import configparser
-import plex_set_tracks
 import pytest
+import requests
+from plexapi.server import PlexServer
 
 # Get info from config file
 config = configparser.ConfigParser()
@@ -13,7 +14,10 @@ PLEX_TOKEN = config['LOGIN']['PLEX_TOKEN']
 def plex():
     assert len(PLEX_URL) > 0, "Plex URL is not specified in config file."
     assert len(PLEX_TOKEN) > 0, "Plex token is not specified in config file."
-    return plex_set_tracks.signInLocally()
+    requests.packages.urllib3.disable_warnings()
+    session = requests.Session()
+    session.verify = False
+    return PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
 
 
 @pytest.fixture(scope='session')
