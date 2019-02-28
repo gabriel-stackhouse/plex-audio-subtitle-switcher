@@ -1,5 +1,6 @@
 import plex_set_tracks
 import pytest
+import requests
 
 
 def spoof_input(monkeypatch, input_list):
@@ -33,3 +34,13 @@ def test_sign_in_locally(monkeypatch, plex):
     assert plex.machineIdentifier == local_plex.machineIdentifier
     assert plex._baseurl == local_plex._baseurl
     assert plex._token == local_plex._token
+
+
+@pytest.mark.timeout(10)
+def test_sign_in_managed_user(monkeypatch, plex, account):
+    spoof_input(monkeypatch, ["Guest"])
+    requests.packages.urllib3.disable_warnings()
+    user_server = plex_set_tracks.signInManagedUser(plex, account, plex._session)
+    assert plex.machineIdentifier == user_server.machineIdentifier
+    assert plex._baseurl == user_server._baseurl
+    assert plex._token != user_server._token, "Not signed in as managed user."

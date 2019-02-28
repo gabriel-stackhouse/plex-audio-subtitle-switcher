@@ -576,7 +576,6 @@ def signInManagedUser(plex, account, session):
             plex(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
             account(:class:`plexapi.myplex.MyPlexAccount`): MyPlexAccount of the account owner.
             session(requests.session): Session object used in account owner sign-in.
-            plexURL(str): The local URL of the Plex server.
     """
     # Get all home users
     homeUsers = []

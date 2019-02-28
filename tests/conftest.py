@@ -21,6 +21,11 @@ def plex():
 
 
 @pytest.fixture(scope='session')
+def account(plex):
+    return plex.myPlexAccount()
+
+
+@pytest.fixture(scope='session')
 def tvshows(plex):
     return plex.library.get("TV Shows")
 
