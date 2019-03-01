@@ -35,7 +35,8 @@ def test_sign_in_managed_user(monkeypatch, plex):
 
 
 def test_episode_to_string(episode):
-    assert plex_set_tracks.episodeToString(episode) == "S02E09 - Blackwater"
+    assert plex_set_tracks.episodeToString(episode) == \
+           "S02E10 - Valar Morghulis"
 
 
 def test_get_seasons_from_user(monkeypatch, show):
@@ -52,7 +53,7 @@ def test_get_seasons_from_user(monkeypatch, show):
 def test_print_reset_subs(capsys, episode):
     plex_set_tracks.printResetSubSuccess(episode)
     captured = capsys.readouterr()
-    assert captured.out == "Reset subtitles for 'S02E09 - Blackwater'\n"
+    assert captured.out == "Reset subtitles for 'S02E10 - Valar Morghulis'\n"
 
 
 def test_seasons_to_string():
@@ -69,4 +70,39 @@ def test_audiostream_info(audiostream):
     assert audiostream_info.codec == "ac3"
     assert audiostream_info.languageCode == "eng"
     assert audiostream_info.title == "Dolby Digital-EX 5.1 @ 640 kbps"
+
+
+def test_subtitlestream_info(subtitlestream):
+    subtitlestream_info = plex_set_tracks.SubtitleStreamInfo(
+        subtitlestream, 3, 1)
+    assert subtitlestream_info.allStreamsIndex == 3
+    assert subtitlestream_info.codec == "srt"
+    assert not subtitlestream_info.forced
+    assert subtitlestream_info.languageCode == "eng"
+    assert subtitlestream_info.location == "Internal"
+    assert subtitlestream_info.subtitleStreamsIndex == 1
+    assert subtitlestream_info.title == "English [for Dothraki spoken parts]"
+
+
+def test_organized_streams(mediapart, audiostreams, subtitlestreams,
+                           audiostream, subtitlestream):
+    organized_streams = plex_set_tracks.OrganizedStreams(mediapart)
+
+    # Test variables
+    assert organized_streams.part.id == mediapart.id
+    assert organized_streams.audioStreams == audiostreams
+    assert organized_streams.subtitleStreams == subtitlestreams
+    assert len(organized_streams.internalSubs) == 2
+    assert len(organized_streams.externalSubs) == 0
+
+    # Test functions
+    assert organized_streams.allStreams() == audiostreams + subtitlestreams
+    assert organized_streams.getIndexFromStream(audiostream) == 1
+    assert organized_streams.getIndexFromStream(subtitlestream) == 3
+    assert organized_streams.getStreamFromIndex(1) == audiostream
+    assert organized_streams.getStreamFromIndex(3) == subtitlestream
+    assert organized_streams.indexIsAudioStream(1)
+    assert not organized_streams.indexIsAudioStream(3)
+    assert not organized_streams.indexIsSubStream(1)
+    assert organized_streams.indexIsSubStream(3)
 

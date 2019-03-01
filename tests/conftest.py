@@ -4,9 +4,9 @@ import requests
 from plexapi.server import PlexServer
 requests.packages.urllib3.disable_warnings()
 
-###################################################################################################
+###############################################################################
 ## Fixtures
-###################################################################################################
+###############################################################################
 
 
 @pytest.fixture(scope='session')
@@ -52,7 +52,7 @@ def seasons(show):
 
 @pytest.fixture(scope='session')
 def episode(show):
-    episode = show.episode(season=2, episode=9)
+    episode = show.episode(season=2, episode=10)
     episode.reload()
     return episode
 
@@ -81,14 +81,14 @@ def subtitlestreams(mediapart):
 def subtitlestream(subtitlestreams):
     return subtitlestreams[0]
 
-###################################################################################################
+###############################################################################
 ## Helper Functions
-###################################################################################################
+###############################################################################
 
 
 def spoof_input(monkeypatch, input_list):
-    """ Given a list of user input values, spoofs the input() function to to iterate over each item
-        in the list with each successive call.
+    """ Given a list of user input values, spoofs the input() function to to
+        iterate over each item in the list with each successive call.
 
         Parameters:
             monkeypatch(MonkeyPatch): Monkeypatch from pytest.
