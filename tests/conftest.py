@@ -46,34 +46,40 @@ def show(tvshows):
 
 
 @pytest.fixture(scope='session')
-def anime_show(anime):
-    return anime.get("Cowboy Bebop")
-
-
-@pytest.fixture(scope='session')
 def seasons(show):
     return show.seasons()
 
 
 @pytest.fixture(scope='session')
 def episode(show):
-    return show.episode(season=2, episode=9)
-
-
-@pytest.fixture(scope='session')
-def anime_episode(anime_show):
-    return anime_show.episode(season=1, episode=7)
-
-
-@pytest.fixture(scope='session')
-def audiostreams(episode):
+    episode = show.episode(season=2, episode=9)
     episode.reload()
-    return episode.media[0].parts[0].audioStreams()
+    return episode
+
+
+@pytest.fixture(scope='session')
+def mediapart(episode):
+    return episode.media[0].parts[0]
+
+
+@pytest.fixture(scope='session')
+def audiostreams(mediapart):
+    return mediapart.audioStreams()
 
 
 @pytest.fixture(scope='session')
 def audiostream(audiostreams):
     return audiostreams[0]
+
+
+@pytest.fixture(scope='session')
+def subtitlestreams(mediapart):
+    return mediapart.subtitleStreams()
+
+
+@pytest.fixture(scope='session')
+def subtitlestream(subtitlestreams):
+    return subtitlestreams[0]
 
 ###################################################################################################
 ## Helper Functions
