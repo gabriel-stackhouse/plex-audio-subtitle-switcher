@@ -256,7 +256,7 @@ def getSeasonsFromUser(show):
             allSeasonsValid = True
 
     # Return valid seasons to modify
-    return givenSeasonsList
+    return [int(i) for i in givenSeasonsList]
 
 
 def getYesOrNoFromUser(prompt):

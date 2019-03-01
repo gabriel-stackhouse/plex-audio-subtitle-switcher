@@ -2,6 +2,7 @@ import configparser
 import pytest
 import requests
 from plexapi.server import PlexServer
+requests.packages.urllib3.disable_warnings()
 
 ###################################################################################################
 ## Fixtures
@@ -19,7 +20,6 @@ def plex():
     assert len(PLEX_TOKEN) > 0, "Plex token is not specified in config file."
 
     # Create PlexServer instance
-    requests.packages.urllib3.disable_warnings()
     session = requests.Session()
     session.verify = False
     return PlexServer(PLEX_URL, PLEX_TOKEN, session=session)
@@ -32,12 +32,37 @@ def account(plex):
 
 @pytest.fixture(scope='session')
 def tvshows(plex):
-    return plex.library.get("TV Shows")
+    return plex.library.section("TV Shows")
+
+
+@pytest.fixture(scope='session')
+def anime(plex):
+    return plex.library.section("Anime")
 
 
 @pytest.fixture(scope='session')
 def show(tvshows):
     return tvshows.get("Game of Thrones")
+
+
+@pytest.fixture(scope='session')
+def anime_show(anime):
+    return anime.get("Cowboy Bebop")
+
+
+@pytest.fixture(scope='session')
+def seasons(show):
+    return show.seasons()
+
+
+@pytest.fixture(scope='session')
+def episode(show):
+    return show.episode(season=2, episode=9)
+
+
+@pytest.fixture(scope='session')
+def anime_episode(anime_show):
+    return anime_show.episode(season=1, episode=7)
 
 ###################################################################################################
 ## Helper Functions
