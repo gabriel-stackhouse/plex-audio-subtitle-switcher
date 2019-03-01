@@ -59,3 +59,14 @@ def test_seasons_to_string():
     assert plex_set_tracks.seasonsToString([2]) == "2"
     assert plex_set_tracks.seasonsToString([2, 5]) == "2 and 5"
     assert plex_set_tracks.seasonsToString([1, 3, 7]) == "1, 3, and 7"
+
+
+def test_audiostream_info(audiostream):
+    audiostream_info = plex_set_tracks.AudioStreamInfo(audiostream, 1)
+    assert audiostream_info.allStreamsIndex == 1
+    assert audiostream_info.audioChannelLayout == "5.1(side)"
+    assert audiostream_info.audioStreamsIndex == 1
+    assert audiostream_info.codec == "ac3"
+    assert audiostream_info.languageCode == "eng"
+    assert audiostream_info.title == "Dolby Digital-EX 5.1 @ 640 kbps"
+

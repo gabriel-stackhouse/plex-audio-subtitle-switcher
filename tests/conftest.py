@@ -64,6 +64,17 @@ def episode(show):
 def anime_episode(anime_show):
     return anime_show.episode(season=1, episode=7)
 
+
+@pytest.fixture(scope='session')
+def audiostreams(episode):
+    episode.reload()
+    return episode.media[0].parts[0].audioStreams()
+
+
+@pytest.fixture(scope='session')
+def audiostream(audiostreams):
+    return audiostreams[0]
+
 ###################################################################################################
 ## Helper Functions
 ###################################################################################################
