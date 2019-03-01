@@ -39,11 +39,12 @@ def test_episode_to_string(episode):
 
 
 def test_get_seasons_from_user(monkeypatch, show):
-    utils.spoof_input(monkeypatch, ["1, 2invalid, 4", "2", "3, 5, 6", "all"])
+    utils.spoof_input(monkeypatch, ["1, 2invalid, 4", "3, 15",
+                                    "2", "5, 3, 6", "all"])
     seasonsList = plex_set_tracks.getSeasonsFromUser(show)
-    assert seasonsList == [2]
+    assert seasonsList == [2]   # First 2 attempts should fail
     seasonsList = plex_set_tracks.getSeasonsFromUser(show)
-    assert seasonsList == [3, 5, 6]
+    assert seasonsList == [5, 3, 6]
     seasonsList = plex_set_tracks.getSeasonsFromUser(show)
     assert seasonsList == [0, 1, 2, 3, 4, 5, 6, 7]
 

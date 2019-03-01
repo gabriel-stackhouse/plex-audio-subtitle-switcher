@@ -716,7 +716,7 @@ if __name__ == "__main__":
             "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
 
         # Print audio & subtitle streams for first episode
-        episode = show.season(int(seasonsToModify[0])).episodes()[0]
+        episode = show.season(seasonsToModify[0]).episodes()[0]
         printStreams(episode)
 
         # Display settings for another episode?

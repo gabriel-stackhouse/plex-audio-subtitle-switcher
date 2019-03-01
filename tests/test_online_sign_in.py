@@ -1,6 +1,5 @@
 import os
 import plex_set_tracks
-import requests
 import pytest
 from . import conftest as utils
 
@@ -20,7 +19,6 @@ def test_sign_in_online(monkeypatch, plex):
     monkeypatch.setattr('getpass.getpass', lambda x: password)
 
     # Test signing in online
-    requests.packages.urllib3.disable_warnings()
     online_plex = plex_set_tracks.signInOnline()
     assert plex.machineIdentifier == online_plex.machineIdentifier
     assert plex.friendlyName == online_plex.friendlyName
