@@ -103,13 +103,12 @@ class OrganizedStreams:
         """ Return True if givenIndex is the index of an :class:`~plexapi.media.AudioStream`,
             False otherwise.
         """
-        return givenIndex > 0 and givenIndex <= len(self.audioStreams)
+        return 0 < givenIndex <= len(self.audioStreams)
 
     def indexIsSubStream(self, givenIndex):
         """ Return True if givenIndex is the index of a :class:`~plexapi.media.SubtitleStream`,
             False otherwise. """
-        return len(self.audioStreams) < givenIndex <= \
-            len(self.audioStreams) + len(self.subtitleStreams)
+        return not self.indexIsAudioStream(givenIndex)
 
 
 class SubtitleStreamInfo:
