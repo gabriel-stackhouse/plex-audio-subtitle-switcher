@@ -72,8 +72,6 @@ def test_match_audio(audiostream, mediapart2, mediapart3):
     matched_audio = plex_set_tracks.matchAudio(mediapart3, template)
     assert matched_audio.title != audiostream.title
     assert matched_audio.languageCode == audiostream.languageCode
-    assert matched_audio.codec == audiostream.codec
-    assert matched_audio.audioChannelLayout == audiostream.audioChannelLayout
 
 
 def test_match_subtitles(subtitlestream, mediapart2, mediapart3):
@@ -87,8 +85,6 @@ def test_match_subtitles(subtitlestream, mediapart2, mediapart3):
     matched_subtitle = plex_set_tracks.matchSubtitles(mediapart3, template)
     assert matched_subtitle.title != subtitlestream.title
     assert matched_subtitle.languageCode == subtitlestream.languageCode
-    assert matched_subtitle.codec == subtitlestream.codec
-    assert matched_subtitle.forced == subtitlestream.forced
 
 
 def test_print_streams(capsys, episode):
