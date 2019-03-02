@@ -198,16 +198,13 @@ def getNumFromUser(prompt):
         Parameters:
             prompt(str): The prompt the user will be given before receiving input.
     """
-    isValidNum = False
-    while not isValidNum:
+    while True:
         givenNum = input(prompt)
         try:
             num = int(givenNum)
+            return num  # Valid if we got here
         except ValueError:
-            print("Error: '%s' is not an integer." % (givenNum))
-        else:
-            isValidNum = True
-    return num
+            print("Error: '%s' is not an integer." % givenNum)
 
 
 def getYesOrNoFromUser(prompt):
