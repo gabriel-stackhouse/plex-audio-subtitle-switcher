@@ -31,8 +31,18 @@ def account(plex):
 
 
 @pytest.fixture(scope='session')
-def show(plex):
-    return plex.library.section("TV Shows").get("Game of Thrones")
+def library(plex):
+    return plex.library.section("TV Shows")
+
+
+@pytest.fixture(scope='session')
+def library2(plex):
+    return plex.library.section("Anime")
+
+
+@pytest.fixture(scope='session')
+def show(library):
+    return library.get("Game of Thrones")
 
 
 @pytest.fixture(scope='session')

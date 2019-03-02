@@ -506,6 +506,37 @@ def selectLibrary(plexServer):
         return plexServer.library.section(givenLibrary.lower())
 
 
+def selectShow(library):
+    # Get list of shows from library
+    showTitles = []
+    for show in library.search(libtype="show"):
+        showTitles.append(show.title)
+
+    # Get show to modify from user
+    enableAutoComplete(
+        showTitles + ["list"])  # Enable autocomplete to shows in library
+    inLibrary = False
+    while not inLibrary:
+        givenShow = input(
+            "Which show should we adjust? (Type 'list' to see all shows): ")
+
+        # If 'list' is typed, print shows in library
+        if givenShow.lower() == "list":
+            for show in showTitles:
+                print(show)
+
+        # Otherwise, get show
+        else:
+            try:
+                show = library.get(givenShow)
+                inLibrary = True  # Found show if we got here
+            except NotFound:
+                print("Error: '%s' is not in library '%s'." % (
+                givenShow, library.title))
+    disableAutoComplete()  # Disable autocomplete
+    return show
+
+
 def seasonsToString(seasons):
     """ Given list of season numbers, returns string of seasons ina readable format.
         Ex: "1, 2, 4, and 5"
@@ -690,31 +721,8 @@ if __name__ == "__main__":
         # Choose library
         library = selectLibrary(plex)
 
-        # Get list of shows from library
-        showTitles = []
-        for show in library.search(libtype="show"):
-            showTitles.append(show.title)
-
-        # Get show to modify from user
-        enableAutoComplete(showTitles + ["list"])   # Enable autocomplete to shows in library
-        inLibrary = False
-        while not inLibrary:
-            givenShow = input("Which show should we adjust? (Type 'list' to see all shows): ")
-
-            # If 'list' is typed, print shows in library
-            if givenShow.lower() == "list":
-                for show in showTitles:
-                    print(show)
-
-            # Otherwise, get show
-            else:
-                try:
-                    show = library.get(givenShow)
-                    inLibrary = True  # Found show if we got here
-                except NotFound:
-                    print("Error: '%s' is not in library '%s'." % (givenShow, library.title))
-
-        disableAutoComplete()   # Disable autocomplete
+        # Choose show
+        show = selectShow(library)
 
         # Get seasons of show to modify from user
         seasonsToModify = getSeasonsFromUser(show)
