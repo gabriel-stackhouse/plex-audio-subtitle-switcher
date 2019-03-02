@@ -36,11 +36,6 @@ def tvshows(plex):
 
 
 @pytest.fixture(scope='session')
-def anime(plex):
-    return plex.library.section("Anime")
-
-
-@pytest.fixture(scope='session')
 def show(tvshows):
     return tvshows.get("Game of Thrones")
 
@@ -58,8 +53,32 @@ def episode(show):
 
 
 @pytest.fixture(scope='session')
+def episode2(show):
+    episode = show.episode(season=2, episode=1)
+    episode.reload()
+    return episode
+
+
+@pytest.fixture(scope='session')
+def episode3(show):
+    episode = show.episode(season=5, episode=1)
+    episode.reload()
+    return episode
+
+
+@pytest.fixture(scope='session')
 def mediapart(episode):
     return episode.media[0].parts[0]
+
+
+@pytest.fixture(scope='session')
+def mediapart2(episode2):
+    return episode2.media[0].parts[0]
+
+
+@pytest.fixture(scope='session')
+def mediapart3(episode3):
+    return episode3.media[0].parts[0]
 
 
 @pytest.fixture(scope='session')
@@ -80,6 +99,11 @@ def subtitlestreams(mediapart):
 @pytest.fixture(scope='session')
 def subtitlestream(subtitlestreams):
     return subtitlestreams[0]
+
+
+@pytest.fixture(scope='session')
+def ext_subtitlestream(subtitlestreams):
+    return subtitlestreams[2]
 
 ###############################################################################
 ## Helper Functions
