@@ -470,6 +470,42 @@ def printSuccess(episode, newStream):
     print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
 
 
+def selectLibrary(plexServer):
+    """ Prompts user to choose library, then returns their choice."""
+    # Get list of TV Show libraries
+    showLibraries = []
+    for lib in plexServer.library.sections():
+        if lib.type == "show":
+            showLibraries.append(lib.title)
+
+    # Choose library
+    if len(showLibraries) < 1:
+        print("Error: No TV Show libraries linked to account.")
+        sys.exit(1)
+    elif len(showLibraries) == 1:
+        return plexServer.library.section(showLibraries[0])
+    else:
+        enableAutoComplete(showLibraries)  # Enable tab autocomplete
+        gotLibrary = False
+        while not gotLibrary:  # Iterate until valid library is chosen
+
+            # Get library from user
+            print("Which library is the show in? [", end="")
+            print("|".join(showLibraries),
+                  end="")  # Display all TV library options
+            givenLibrary = input("]: ")  # Choose library
+
+            # Check input
+            for lib in showLibraries:
+                if lib.lower() == givenLibrary.lower():
+                    gotLibrary = True
+            if not gotLibrary:
+                print("Error: '%s' is not a TV library." % givenLibrary)
+
+        # Got valid library
+        return plexServer.library.section(givenLibrary.lower())
+
+
 def seasonsToString(seasons):
     """ Given list of season numbers, returns string of seasons ina readable format.
         Ex: "1, 2, 4, and 5"
@@ -651,35 +687,8 @@ if __name__ == "__main__":
     settingStreams = True
     while settingStreams:
 
-        # Get list of TV Show libraries
-        showLibraries = []
-        for lib in plex.library.sections():
-            if lib.type == "show":
-                showLibraries.append(lib.title)
-
         # Choose library
-        if len(showLibraries) < 1:
-            print("Error: No TV Show libraries linked to account.")
-            sys.exit(1)
-        elif len(showLibraries) == 1:
-            library = plex.library.section(showLibraries[0])
-        else:
-            enableAutoComplete(showLibraries)   # Enable tab autocomplete
-            gotLibrary = False
-            while not gotLibrary:  # Iterate until valid library is chosen
-
-                # Get library from user
-                print("Which library is the show in? [", end="")
-                print("|".join(showLibraries), end="")  # Display all TV library options
-                givenLibrary = input("]: ")    # Choose library
-
-                # Check input
-                for lib in showLibraries:
-                    if lib.lower() == givenLibrary.lower():
-                        gotLibrary = True
-                if not gotLibrary:
-                    print("Error: '%s' is not a TV library." % (givenLibrary))
-            library = plex.library.section(givenLibrary.lower())    # Got valid library
+        library = selectLibrary(plex)
 
         # Get list of shows from library
         showTitles = []

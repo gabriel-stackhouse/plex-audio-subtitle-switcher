@@ -156,6 +156,16 @@ def test_seasons_to_string():
     assert plex_set_tracks.seasonsToString([1, 3, 7]) == "1, 3, and 7"
 
 
+def test_select_library(monkeypatch, plex):
+    tvshows = plex.library.section("TV Shows")
+    anime = plex.library.section("Anime")
+    utils.spoof_input(monkeypatch, ["TV Shows", "invalid", "Anime"])
+    library = plex_set_tracks.selectLibrary(plex)
+    assert library.uuid == tvshows.uuid
+    library = plex_set_tracks.selectLibrary(plex)
+    assert library.uuid == anime.uuid
+
+
 @pytest.mark.timeout(10)
 def test_sign_in_locally(monkeypatch, plex):
     utils.spoof_input(monkeypatch, ['n'])
