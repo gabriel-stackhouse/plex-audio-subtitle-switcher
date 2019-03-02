@@ -15,7 +15,7 @@ def test_audiostream_info(audiostream):
 
 def test_episode_to_string(episode):
     assert plex_set_tracks.episodeToString(episode) == \
-           "S02E10 - Valar Morghulis"
+        "S02E10 - Valar Morghulis"
 
 
 def test_get_num_from_user(monkeypatch):

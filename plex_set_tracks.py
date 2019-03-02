@@ -9,6 +9,7 @@ import getpass
 import sys
 import requests
 import configparser
+
 try:
     import gnureadline as readline
 except ImportError:
@@ -16,6 +17,7 @@ except ImportError:
         import readline
     except ImportError:
         import pyreadline as readline
+
 
 ###################################################################################################
 ## Classes
@@ -35,8 +37,8 @@ class AudioStreamInfo:
             languageCode (str): Ascii code for language (ex: eng, tha).
             title (str): Title of the audio stream.
     """
-    def __init__(self, audioStream, audioStreamsIndex):
 
+    def __init__(self, audioStream, audioStreamsIndex):
         # Initialize variables
         self.allStreamsIndex = audioStreamsIndex
         self.audioChannelLayout = audioStream.audioChannelLayout
@@ -61,6 +63,7 @@ class OrganizedStreams:
             subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
                 SubtitleStreams in MediaPart
     """
+
     def __init__(self, mediaPart):
 
         # Store all streams
@@ -128,8 +131,8 @@ class SubtitleStreamInfo:
                 in MediaPart.subtitleStreams().
             title (str): Title of the subtitle stream.
     """
-    def __init__(self, subtitleStream, allStreamsIndex, subtitleStreamsIndex):
 
+    def __init__(self, subtitleStream, allStreamsIndex, subtitleStreamsIndex):
         # Initialize variables
         self.allStreamsIndex = allStreamsIndex
         self.codec = subtitleStream.codec
@@ -138,6 +141,7 @@ class SubtitleStreamInfo:
         self.location = "Internal" if subtitleStream.index >= 0 else "External"
         self.subtitleStreamsIndex = subtitleStreamsIndex
         self.title = subtitleStream.title
+
 
 ###################################################################################################
 ## Functions
@@ -164,13 +168,15 @@ def enableAutoComplete(matchList):
         if text == "":
             matches = matchList
         else:
-            matches = [x for x in matchList if x.lower().startswith(text.lower())]
+            matches = [x for x in matchList if
+                       x.lower().startswith(text.lower())]
 
         # return current completion match
         if state > len(matches):
             return None
         else:
             return matches[state]
+
     readline.set_completer(complete)
 
 
@@ -234,8 +240,8 @@ def matchAudio(episodePart, template):
     audioStreams = episodeStreams.audioStreams
 
     # Initialize variables
-    winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
-    winningScore = -1   # Score of AudioStream in the lead
+    winningIndex = -1  # Index of AudioStream in the lead (1-indexed)
+    winningScore = -1  # Score of AudioStream in the lead
 
     for i, stream in enumerate(audioStreams, 1):
 
@@ -265,7 +271,8 @@ def matchAudio(episodePart, template):
                 winningIndex = i
 
     if winningScore >= 0:
-        return audioStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
+        return audioStreams[
+            winningIndex - 1]  # Must subtract one because array is 0-indexed
 
 
 def matchSubtitles(episodePart, template):
@@ -284,8 +291,8 @@ def matchSubtitles(episodePart, template):
     subtitleStreams = episodeStreams.subtitleStreams
 
     # Initialize variables
-    winningIndex = -1   # Index of AudioStream in the lead (1-indexed)
-    winningScore = -1   # Score of AudioStream in the lead
+    winningIndex = -1  # Index of AudioStream in the lead (1-indexed)
+    winningScore = -1  # Score of AudioStream in the lead
 
     for i, stream in enumerate(subtitleStreams, 1):
 
@@ -323,7 +330,8 @@ def matchSubtitles(episodePart, template):
                 winningIndex = i
 
     if winningScore >= 0:
-        return subtitleStreams[winningIndex - 1]   # Must subtract one because array is 0-indexed
+        return subtitleStreams[
+            winningIndex - 1]  # Must subtract one because array is 0-indexed
 
 
 def printResetSubSuccess(episode):
@@ -350,15 +358,18 @@ def printStreams(episode):
     # Print audio streams
     count = 1
     print("\nAudio & subtitle settings for '%s %s':\n" % (episode.show().title,
-          episodeToString(episode)))
+                                                          episodeToString(
+                                                              episode)))
     print("Audio:\n")
     for stream in streams.audioStreams:
         selected = ""
         if stream.selected:
             selected = "*"
-        print("\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-            count, selected, stream.title, stream.languageCode, stream.codec,
-            stream.audioChannelLayout))
+        print(
+            "\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
+                count, selected, stream.title, stream.languageCode,
+                stream.codec,
+                stream.audioChannelLayout))
         count += 1
     print("\n\t* = Currently enabled track.\n")
 
@@ -391,8 +402,10 @@ def printSubtitles(streams, startIndex=1):
         selected = ""
         if stream.selected:
             selected = "*"
-        print("\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-            i, selected, stream.title, stream.languageCode, stream.codec, stream.forced))
+        print(
+            "\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
+                i, selected, stream.title, stream.languageCode, stream.codec,
+                stream.forced))
     return startIndex + len(streams)
 
 
@@ -413,7 +426,8 @@ def printSuccess(episode, newStream):
         streamType = "audio"
     elif isinstance(newStream, SubtitleStream):
         streamType = "subtitle"
-    print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
+    print("Set %s %sfor '%s'" % (
+        streamType, descriptor, episodeToString(episode)))
 
 
 def selectAudio(streams):
@@ -497,7 +511,8 @@ def selectSeasons(show):
             seasonNums.append(season.index)
 
         # Display season numbers
-        print("You have the following seasons of '%s': [" % (show.title), end="")
+        print("You have the following seasons of '%s': [" % (show.title),
+              end="")
         print("|".join([str(s) for s in seasonNums]), end="")
         print("]")
 
@@ -510,7 +525,7 @@ def selectSeasons(show):
             return seasonNums
 
         # Otherwise, check each season for validity
-        givenSeasons = givenSeasons.replace(" ", "")    # Remove spaces
+        givenSeasons = givenSeasons.replace(" ", "")  # Remove spaces
         givenSeasonsList = givenSeasons.split(',')
         for curSeason in givenSeasonsList:
 
@@ -525,7 +540,8 @@ def selectSeasons(show):
             # Now check if they have said season in their library
             curSeasonIsValid = seasonInt in seasonNums
             if not curSeasonIsValid:
-                print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
+                print("Error: Season %d of '%s' is not in your library." % (
+                    seasonInt, show.title))
                 break
 
         # If we got through all seasons successfully, they are all valid
@@ -568,7 +584,7 @@ def selectShow(library):
                 inLibrary = True  # Found show if we got here
             except NotFound:
                 print("Error: '%s' is not in library '%s'." % (
-                givenShow, library.title))
+                    givenShow, library.title))
     disableAutoComplete()  # Disable autocomplete
     return show
 
@@ -592,6 +608,7 @@ def selectSubtitles(streams):
         # If left blank, subtitles will be disabled
         if givenSubIndex == "":
             return -1
+
         else:
             # Check if it's a valid subtitle stream
             # Ensure user entered an integer
@@ -607,6 +624,7 @@ def selectSubtitles(streams):
                     print("Error: Number does not correspond to a subtitle "
                           "track.")
     return index
+
 
 def seasonsToString(seasons):
     """ Given list of season numbers, returns string of seasons ina readable format.
@@ -624,7 +642,8 @@ def seasonsToString(seasons):
         else:
             # Who gave the grammar nazi a software degree?
             seasonString += "%s %s%s" % (
-                "," if len(seasons) > 2 else "", "and " if i == len(seasons) - 1 else "", s)
+                "," if len(seasons) > 2 else "",
+                "and " if i == len(seasons) - 1 else "", s)
     return seasonString
 
 
@@ -666,10 +685,11 @@ def signInLocally():
     isSignedIn = False
     while not isSignedIn:
         if plexURL == '' or plexToken == '':
-
             # Get URL and token from user
-            plexURL = input("Input server URL [Ex. https://192.168.1.50:32400]: ")
-            plexToken = input("Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
+            plexURL = input(
+                "Input server URL [Ex. https://192.168.1.50:32400]: ")
+            plexToken = input(
+                "Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
 
         # Sign in
         print("Signing in...")
@@ -680,7 +700,8 @@ def signInLocally():
             plexServer = PlexServer(plexURL, plexToken, session=session)
             account = plexServer.myPlexAccount()
             isSignedIn = True
-        except (requests.ConnectionError, requests.exceptions.MissingSchema, BadRequest) as error:
+        except (requests.ConnectionError, requests.exceptions.MissingSchema,
+                BadRequest) as error:
 
             # Connection failed
             if (isinstance(error, requests.ConnectionError) or
@@ -748,7 +769,8 @@ def signInManagedUser(plexServer):
     # Sign in with managed user
     print("Signing in as '%s'..." % givenManagedUser)
     managedUser = account.user(givenManagedUser)
-    return PlexServer(plexServer._baseurl, managedUser.get_token(plexServer.machineIdentifier),
+    return PlexServer(plexServer._baseurl,
+                      managedUser.get_token(plexServer.machineIdentifier),
                       session=plexServer._session)
 
 
@@ -772,8 +794,10 @@ def signInOnline():
         except BadRequest:
             print("Error: Login failed. Are your credentials correct?")
         except NotFound:
-            print("Error: Server '%s' not found linked to your account." % serverName)
+            print(
+                "Error: Server '%s' not found linked to your account." % serverName)
     return plexServer
+
 
 ###################################################################################################
 ## Start Script
@@ -800,7 +824,8 @@ if __name__ == "__main__":
 
         # Print all seasons we'll modify
         print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
-            "s" if len(seasons) > 1 else "", seasonsToString(seasons), show.title))
+            "s" if len(seasons) > 1 else "", seasonsToString(seasons),
+            show.title))
 
         # Print audio & subtitle streams for first episode
         episode = show.season(seasons[0]).episodes()[0]
@@ -808,9 +833,10 @@ if __name__ == "__main__":
 
         # Display settings for another episode?
         displayingEpisodes = True
-        while displayingEpisodes:   # Continuously display episodes until user chooses not to
+        while displayingEpisodes:  # Continuously display episodes until user chooses not to
             # Display another episode?
-            displayEpisode = getYesOrNoFromUser("Display settings for another episode? [Y/n]: ")
+            displayEpisode = getYesOrNoFromUser(
+                "Display settings for another episode? [Y/n]: ")
 
             if displayEpisode == 'y':
 
@@ -822,16 +848,17 @@ if __name__ == "__main__":
                 try:
                     episode = show.episode(season=seasonNum, episode=episodeNum)
                 except (BadRequest, NotFound):
-                    print("S%02dE%02d of '%s' is not in your library." % (seasonNum, episodeNum,
-                          show.title))
+                    print("S%02dE%02d of '%s' is not in your library." % (
+                        seasonNum, episodeNum, show.title))
                 else:
                     printStreams(episode)
             else:  # User done displaying episodes
                 displayingEpisodes = False
 
         # Get audio and subtitle streams of displayed episode
-        episodePart = episode.media[0].parts[0]         # The episode file
-        episodeStreams = OrganizedStreams(episodePart)  # Audio & subtitle streams
+        episodePart = episode.media[0].parts[0]  # The episode file
+        episodeStreams = OrganizedStreams(
+            episodePart)  # Audio & subtitle streams
 
         # Get index of new audio stream from user
         audioIndex = None
@@ -842,7 +869,8 @@ if __name__ == "__main__":
 
         # Get index of new subtitle stream from user
         subIndex = None
-        adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
+        adjustSubtitles = getYesOrNoFromUser(
+            "Do you want to switch subtitle tracks? [Y/n]: ")
         if adjustSubtitles == 'y':
             subIndex = selectSubtitles(episodeStreams)
         resetSubtitles = True if subIndex is not None and subIndex < 0 \
@@ -853,21 +881,25 @@ if __name__ == "__main__":
 
             # Print show and seasons we will modify
             print("Matching Season%s %s of %s to the following tracks:\n" % (
-                "s" if len(seasons) > 1 else "", seasonsToString(seasons), show.title))
+                "s" if len(seasons) > 1 else "", seasonsToString(seasons),
+                show.title))
 
             # Print audio stream template
             if adjustAudio == 'y':
                 newAudio = episodeStreams.getStreamFromIndex(audioIndex)
-                print("\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-                    newAudio.title, newAudio.languageCode, newAudio.codec,
-                    newAudio.audioChannelLayout))
+                print(
+                    "\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
+                        newAudio.title, newAudio.languageCode, newAudio.codec,
+                        newAudio.audioChannelLayout))
 
             # Print subtitle stream template
             if adjustSubtitles == 'y' and not resetSubtitles:
                 newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
-                print("\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-                    newSubtitle.title, newSubtitle.languageCode, newSubtitle.codec,
-                    newSubtitle.forced))
+                print(
+                    "\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
+                        newSubtitle.title, newSubtitle.languageCode,
+                        newSubtitle.codec,
+                        newSubtitle.forced))
             elif adjustSubtitles == 'y' and resetSubtitles:
                 print("\tSubtitles | Disabled")
 
@@ -879,7 +911,6 @@ if __name__ == "__main__":
 
         # Set audio/subtitle streams for highlighted episode
         if adjustAudio == 'y':
-
             # Set audio settings for chosen episode
             episodePart.setDefaultAudioStream(newAudio)
 
@@ -906,25 +937,30 @@ if __name__ == "__main__":
 
                 # Create template for matching future episodes
                 subtitleTemplate = SubtitleStreamInfo(
-                    newSubtitle, subIndex, subIndex - len(episodeStreams.audioStreams))
+                    newSubtitle, subIndex,
+                    subIndex - len(episodeStreams.audioStreams))
 
                 # Print result
                 printSuccess(episode, newSubtitle)
 
         # Batch set audio/subtitle streams for all chosen episodes
-        if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
+        # Skip loop if no adjustments will be made
+        if adjustAudio == 'y' or adjustSubtitles == 'y':
 
-            for seasonNum in seasons:    # Each season
+            # Each season
+            for seasonNum in seasons:
                 season = show.season(int(seasonNum))
 
-                for episode in season.episodes():    # Each episode in each season
+                # Each episode in each season
+                for episode in season.episodes():
                     episode.reload()
 
-                    for part in episode.media[0].parts:    # Each MediaPart (file) for each episode
+                    # Each MediaPart (file) for each episode
+                    for part in episode.media[0].parts:
 
                         # Skip re-adjusting file we already modified
                         if part.id == episodePart.id:
-                            continue    # Next file
+                            continue  # Next file
 
                         # Set audio settings for MediaPart
                         if adjustAudio == 'y':
@@ -939,7 +975,9 @@ if __name__ == "__main__":
                                 # Print result
                                 printSuccess(episode, newAudio)
                             else:
-                                print("No audio matches found for '%s'" % episodeToString(episode))
+                                print(
+                                    "No audio matches found for '%s'" % episodeToString(
+                                        episode))
 
                         # Reset subtitles if user chose to
                         if adjustSubtitles == 'y' and resetSubtitles:
@@ -959,9 +997,12 @@ if __name__ == "__main__":
                                 # Print result
                                 printSuccess(episode, newSubtitle)
                             else:
-                                print("No subtitle matches found for '%s'" % episodeToString(episode))
+                                print(
+                                    "No subtitle matches found for '%s'" % episodeToString(
+                                        episode))
 
         # Completed!
-        newShow = getYesOrNoFromUser("Operations complete! Modify another show? [Y/n]: ")
+        newShow = getYesOrNoFromUser(
+            "Operations complete! Modify another show? [Y/n]: ")
         if newShow == 'n':
             settingStreams = False
