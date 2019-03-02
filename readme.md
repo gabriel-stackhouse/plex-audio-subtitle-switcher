@@ -22,11 +22,11 @@ below will do this automatically, so ensure that git is installed before running
 
 Install on Windows:
 
-    python ./setup.py
+    python setup.py
     
 Or on Linux/MacOS:
 
-    python3 ./setup.py
+    python3 setup.py
 
 Running the Script
 ------------------
@@ -37,8 +37,8 @@ them, are relatively similar. Results may vary if modifying episodes from a wide
 spots indicated in the file. You will be prompted for this information if this step is not 
 completed.
 
-1. Run the script.  Windows: ```python ./plex_set_tracks.py``` or Linux/MacOS: 
-```python3 ./plex_set_tracks.py```.
+1. Run the script.  Windows: ```python plex_set_tracks.py``` or Linux/MacOS: 
+```python3 plex_set_tracks.py```.
 
 2. Choose whether to connect to your Plex server locally (via your Plex URL and an API token), or 
 online (via your Plex username and password).
@@ -76,6 +76,29 @@ with another English track with the same title.
 If there are no tracks with equal titles and language codes, the track with the most hits from the 
 middle column will be called a match (tie goes to the first track in the video).  Lastly, no audio 
 or subtitle tracks with different language codes can be considered a match.
+
+Running Unit Tests
+------------------
+To run tests for plex_set_tracks, you must have a Plex library that contains all seasons of Game of
+Thrones. Additionally, 'S02E10 - Valar Morghulis', must have at least one external subtitle.
+
+First, install all additional dependencies:
+
+    pip install setup/requirements-dev.txt
+
+Next, you must provide a few environment variables:
+
+* PLEXAPI_AUTH_MYPLEX_USERNAME: Your Plex username
+* PLEXAPI_AUTH_MYPLEX_PASSWORD: Your Plex password
+* PLEXAPI_AUTH_SERVER_NAME: Your Plex server name
+
+Finally, run the tests:
+
+    pytest -rxXs tests
+    
+Optionally, skip testing online sign-in (saves about 20 seconds):
+
+    pytest -rxXs tests --ignore=tests/test_online_sign_in.py
 
 Planned Feature Additions
 -------------------------
