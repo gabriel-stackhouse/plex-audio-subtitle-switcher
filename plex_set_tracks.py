@@ -202,62 +202,6 @@ def getNumFromUser(prompt):
     return num
 
 
-def getSeasonsFromUser(show):
-    """ Gets seasons of a show to be adjusted from the user, then checks if all
-        seasons are valid and in the user's library. Continuously prompts user
-        until all seasons are valid.
-
-        Parameters:
-            show(:class:`~plexapi.video.Show`): The show the user will be choosing
-                seasons from.
-    """
-    allSeasonsValid = False
-    while not allSeasonsValid:
-        # Get seasons user has in library
-        seasonNums = []
-        for season in show.seasons():
-            seasonNums.append(season.index)
-
-        # Display season numbers
-        print("You have the following seasons of '%s': [" % (show.title), end="")
-        print("|".join([str(s) for s in seasonNums]), end="")
-        print("]")
-
-        # Choose seasons to modify
-        givenSeasons = input(
-            "Which season(s) should we adjust? [Comma-separated, 'all' for entire series]: ")
-
-        # If 'all' is typed, return all seasons
-        if givenSeasons == "all":
-            return seasonNums
-
-        # Otherwise, check each season for validity
-        givenSeasons = givenSeasons.replace(" ", "")    # Remove spaces
-        givenSeasonsList = givenSeasons.split(',')
-        for curSeason in givenSeasonsList:
-
-            # First check if it's an integer
-            curSeasonIsValid = False
-            try:
-                seasonInt = int(curSeason)
-            except ValueError:
-                print("Error: '%s' is not an integer." % (curSeason))
-                break
-
-            # Now check if they have said season in their library
-            curSeasonIsValid = seasonInt in seasonNums
-            if not curSeasonIsValid:
-                print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
-                break
-
-        # If we got through all seasons successfully, they are all valid
-        if curSeasonIsValid:
-            allSeasonsValid = True
-
-    # Return valid seasons to modify
-    return [int(i) for i in givenSeasonsList]
-
-
 def getYesOrNoFromUser(prompt):
     """ Prompts user for a 'y' or 'n' response, then validates.
 
@@ -506,6 +450,62 @@ def selectLibrary(plexServer):
         return plexServer.library.section(givenLibrary.lower())
 
 
+def selectSeasons(show):
+    """ Gets seasons of a show to be adjusted from the user, then checks if all
+        seasons are valid and in the user's library. Continuously prompts user
+        until all seasons are valid.
+
+        Parameters:
+            show(:class:`~plexapi.video.Show`): The show the user will be choosing
+                seasons from.
+    """
+    allSeasonsValid = False
+    while not allSeasonsValid:
+        # Get seasons user has in library
+        seasonNums = []
+        for season in show.seasons():
+            seasonNums.append(season.index)
+
+        # Display season numbers
+        print("You have the following seasons of '%s': [" % (show.title), end="")
+        print("|".join([str(s) for s in seasonNums]), end="")
+        print("]")
+
+        # Choose seasons to modify
+        givenSeasons = input(
+            "Which season(s) should we adjust? [Comma-separated, 'all' for entire series]: ")
+
+        # If 'all' is typed, return all seasons
+        if givenSeasons == "all":
+            return seasonNums
+
+        # Otherwise, check each season for validity
+        givenSeasons = givenSeasons.replace(" ", "")    # Remove spaces
+        givenSeasonsList = givenSeasons.split(',')
+        for curSeason in givenSeasonsList:
+
+            # First check if it's an integer
+            curSeasonIsValid = False
+            try:
+                seasonInt = int(curSeason)
+            except ValueError:
+                print("Error: '%s' is not an integer." % (curSeason))
+                break
+
+            # Now check if they have said season in their library
+            curSeasonIsValid = seasonInt in seasonNums
+            if not curSeasonIsValid:
+                print("Error: Season %d of '%s' is not in your library." % (seasonInt, show.title))
+                break
+
+        # If we got through all seasons successfully, they are all valid
+        if curSeasonIsValid:
+            allSeasonsValid = True
+
+    # Return valid seasons to modify
+    return [int(i) for i in givenSeasonsList]
+
+
 def selectShow(library):
     # Get list of shows from library
     showTitles = []
@@ -725,14 +725,14 @@ if __name__ == "__main__":
         show = selectShow(library)
 
         # Get seasons of show to modify from user
-        seasonsToModify = getSeasonsFromUser(show)
+        seasons = selectSeasons(show)
 
         # Print all seasons we'll modify
         print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
-            "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
+            "s" if len(seasons) > 1 else "", seasonsToString(seasons), show.title))
 
         # Print audio & subtitle streams for first episode
-        episode = show.season(seasonsToModify[0]).episodes()[0]
+        episode = show.season(seasons[0]).episodes()[0]
         printStreams(episode)
 
         # Display settings for another episode?
@@ -819,7 +819,7 @@ if __name__ == "__main__":
 
             # Print show and seasons we will modify
             print("Matching Season%s %s of %s to the following tracks:\n" % (
-                "s" if len(seasonsToModify) > 1 else "", seasonsToString(seasonsToModify), show.title))
+                "s" if len(seasons) > 1 else "", seasonsToString(seasons), show.title))
 
             # Print audio stream template
             if adjustAudio == 'y':
@@ -880,7 +880,7 @@ if __name__ == "__main__":
         # Batch set audio/subtitle streams for all chosen episodes
         if adjustAudio == 'y' or adjustSubtitles == 'y':    # Skip loop if no adjustments will be made
 
-            for seasonNum in seasonsToModify:    # Each season
+            for seasonNum in seasons:    # Each season
                 season = show.season(int(seasonNum))
 
                 for episode in season.episodes():    # Each episode in each season

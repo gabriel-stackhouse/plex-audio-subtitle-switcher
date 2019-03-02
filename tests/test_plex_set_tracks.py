@@ -24,17 +24,6 @@ def test_get_num_from_user(monkeypatch):
     assert int(plex_set_tracks.getNumFromUser("")) == 42
 
 
-def test_get_seasons_from_user(monkeypatch, show):
-    utils.spoof_input(monkeypatch, ["1, 2invalid, 4", "3, 15",
-                                    "2", "5, 3, 6", "all"])
-    seasonsList = plex_set_tracks.getSeasonsFromUser(show)
-    assert seasonsList == [2]   # First 2 attempts should fail
-    seasonsList = plex_set_tracks.getSeasonsFromUser(show)
-    assert seasonsList == [5, 3, 6]
-    seasonsList = plex_set_tracks.getSeasonsFromUser(show)
-    assert seasonsList == [0, 1, 2, 3, 4, 5, 6, 7]
-
-
 def test_get_yes_or_no(monkeypatch):
     utils.spoof_input(monkeypatch, ["y", "n", "not_valid", "y"])
     assert plex_set_tracks.getYesOrNoFromUser("") == "y"
@@ -162,6 +151,17 @@ def test_select_library(monkeypatch, plex, library, library2):
     assert selected_library.uuid == library.uuid
     selected_library = plex_set_tracks.selectLibrary(plex)
     assert selected_library.uuid == library2.uuid
+
+
+def test_select_seasons(monkeypatch, show):
+    utils.spoof_input(monkeypatch, ["1, 2invalid, 4", "3, 15",
+                                    "2", "5, 3, 6", "all"])
+    seasonsList = plex_set_tracks.selectSeasons(show)
+    assert seasonsList == [2]   # First 2 attempts should fail
+    seasonsList = plex_set_tracks.selectSeasons(show)
+    assert seasonsList == [5, 3, 6]
+    seasonsList = plex_set_tracks.selectSeasons(show)
+    assert seasonsList == [0, 1, 2, 3, 4, 5, 6, 7]
 
 
 def test_select_show(monkeypatch, library, show):
