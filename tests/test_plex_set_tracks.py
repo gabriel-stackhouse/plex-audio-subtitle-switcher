@@ -51,6 +51,7 @@ def test_organized_streams(mediapart, audiostreams, subtitlestreams,
     assert organized_streams.indexIsAudioStream(1)
     assert not organized_streams.indexIsAudioStream(3)
     assert not organized_streams.indexIsSubStream(1)
+    assert not organized_streams.indexIsSubStream(6)
     assert organized_streams.indexIsSubStream(3)
 
 
@@ -151,6 +152,7 @@ def test_select_audio(monkeypatch, mediapart):
     index = plex_set_tracks.selectAudio(streams)
     assert index == 1   # First three choices should fail
 
+
 def test_select_library(monkeypatch, plex, library, library2):
     utils.spoof_input(monkeypatch, ["TV Shows", "invalid", "Anime"])
     selected_library = plex_set_tracks.selectLibrary(plex)
@@ -174,6 +176,18 @@ def test_select_show(monkeypatch, library, show):
     utils.spoof_input(monkeypatch, ["invalid", "Game of Thrones"])
     selected_show = plex_set_tracks.selectShow(library)
     assert selected_show.title == show.title
+
+
+def test_select_subtitles(monkeypatch, mediapart):
+    utils.spoof_input(monkeypatch, ["2", "6", "3", "5", ""])
+    streams = plex_set_tracks.OrganizedStreams(mediapart)
+    index = plex_set_tracks.selectSubtitles(streams)
+    assert index == 3   # First two should fail
+    index = plex_set_tracks.selectSubtitles(streams)
+    assert index == 5   # Test external subs
+    index = plex_set_tracks.selectSubtitles(streams)
+    assert index == -1
+
 
 @pytest.mark.timeout(10)
 def test_sign_in_locally(monkeypatch, plex):

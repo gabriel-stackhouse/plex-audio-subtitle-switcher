@@ -108,7 +108,9 @@ class OrganizedStreams:
     def indexIsSubStream(self, givenIndex):
         """ Return True if givenIndex is the index of a :class:`~plexapi.media.SubtitleStream`,
             False otherwise. """
-        return not self.indexIsAudioStream(givenIndex)
+        if givenIndex <= len(self.allStreams()):
+            return not self.indexIsAudioStream(givenIndex)
+        return False
 
 
 class SubtitleStreamInfo:
@@ -571,6 +573,41 @@ def selectShow(library):
     return show
 
 
+def selectSubtitles(streams):
+    """ Prompts user to choose SubtitleStream, then returns their choice.
+
+        Parameters:
+            streams(:class:`OrganizedStreams`): The OrganizedStreams object
+                of the episode.
+    """
+    # Begin validation loop
+    isSubtitleStream = False
+    while not isSubtitleStream:
+
+        # Get sub index from user
+        givenSubIndex = input(
+            "Choose the number for the subtitle track you'd like to switch "
+            "to, or leave blank to disable subtitles: ").lower()
+
+        # If left blank, subtitles will be disabled
+        if givenSubIndex == "":
+            return -1
+        else:
+            # Check if it's a valid subtitle stream
+            # Ensure user entered an integer
+            try:
+                index = int(givenSubIndex)
+            except ValueError:
+                print("Error: '%s' is not an integer." % givenSubIndex)
+            else:
+                # Validate
+                if streams.indexIsSubStream(index):
+                    isSubtitleStream = True
+                else:
+                    print("Error: Number does not correspond to a subtitle "
+                          "track.")
+    return index
+
 def seasonsToString(seasons):
     """ Given list of season numbers, returns string of seasons ina readable format.
         Ex: "1, 2, 4, and 5"
@@ -805,36 +842,11 @@ if __name__ == "__main__":
 
         # Get index of new subtitle stream from user
         subIndex = None
-        resetSubtitles = False
         adjustSubtitles = getYesOrNoFromUser("Do you want to switch subtitle tracks? [Y/n]: ")
         if adjustSubtitles == 'y':
-
-            # Begin valiation loop
-            isSubtitleStream = False
-            while not isSubtitleStream:
-
-                # Get sub index from user
-                givenSubIndex = input(
-                    "Choose the number for the subtitle track you'd like to switch to, or leave blank "
-                    "to disable subtitles: ").lower()
-
-                # If left blank, subtitles will be disabled
-                if givenSubIndex == "":
-                    resetSubtitles = True
-                    isSubtitleStream = True
-                else:
-                    # Check if it's a valid subtitle stream
-                    # Ensure user entered an integer
-                    try:
-                        subIndex = int(givenSubIndex)
-                    except ValueError:
-                        print("Error: '%s' is not an integer." % (givenSubIndex))
-                    else:
-                        # Validate
-                        if episodeStreams.indexIsSubStream(subIndex):
-                            isSubtitleStream = True
-                        else:
-                            print("Error: Number does not correspond to a subtitle track.")
+            subIndex = selectSubtitles(episodeStreams)
+        resetSubtitles = True if subIndex is not None and subIndex < 0 \
+            else False
 
         # Final prompt
         if adjustAudio == 'y' or adjustSubtitles == 'y':
