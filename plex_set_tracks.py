@@ -414,8 +414,36 @@ def printSuccess(episode, newStream):
     print("Set %s %sfor '%s'" % (streamType, descriptor, episodeToString(episode)))
 
 
+def selectAudio(streams):
+    """ Prompts user to choose AudioStream, then returns their choice.
+
+        Parameters:
+            streams(:class:`OrganizedStreams`): The OrganizedStreams object
+                of the episode.
+    """
+    # Begin validation loop
+    isAudioStream = False
+    while not isAudioStream:
+
+        # Get index from user
+        index = getNumFromUser(
+            "Choose the number for the audio track you'd like to switch to: ")
+
+        # Validate index
+        if streams.indexIsAudioStream(index):
+            isAudioStream = True
+        else:
+            print("Error: Number does not correspond to an audio track.")
+    return index
+
+
 def selectLibrary(plexServer):
-    """ Prompts user to choose library, then returns their choice."""
+    """ Prompts user to choose library, then returns their choice.
+
+        Parameters:
+            plexServer(:class:`~plexapi.server.PlexServer`): The Plex server
+                instance.
+    """
     # Get list of TV Show libraries
     showLibraries = []
     for lib in plexServer.library.sections():
@@ -507,6 +535,12 @@ def selectSeasons(show):
 
 
 def selectShow(library):
+    """ Prompts user to choose show, then returns their choice.
+
+        Parameters:
+            library(:class:`~plexapi.library.LibrarySection`): The library to
+                select a show from.
+    """
     # Get list of shows from library
     showTitles = []
     for show in library.search(libtype="show"):
@@ -764,22 +798,10 @@ if __name__ == "__main__":
 
         # Get index of new audio stream from user
         audioIndex = None
-        adjustAudio = getYesOrNoFromUser("Do you want to switch audio tracks? [Y/n]: ")
+        adjustAudio = getYesOrNoFromUser(
+            "Do you want to switch audio tracks? [Y/n]: ")
         if adjustAudio == 'y':
-
-            # Begin validation loop
-            isAudioStream = False
-            while not isAudioStream:
-
-                # Get index from user
-                audioIndex = getNumFromUser(
-                    "Choose the number for the audio track you'd like to switch to: ")
-
-                # Validate index
-                if episodeStreams.indexIsAudioStream(audioIndex):
-                    isAudioStream = True
-                else:
-                    print("Error: Number does not correspond to an audio track.")
+            audioIndex = selectAudio(episodeStreams)
 
         # Get index of new subtitle stream from user
         subIndex = None

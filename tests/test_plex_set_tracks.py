@@ -145,6 +145,12 @@ def test_seasons_to_string():
     assert plex_set_tracks.seasonsToString([1, 3, 7]) == "1, 3, and 7"
 
 
+def test_select_audio(monkeypatch, mediapart):
+    utils.spoof_input(monkeypatch, ["3", "5", "10", "1"])
+    streams = plex_set_tracks.OrganizedStreams(mediapart)
+    index = plex_set_tracks.selectAudio(streams)
+    assert index == 1   # First three choices should fail
+
 def test_select_library(monkeypatch, plex, library, library2):
     utils.spoof_input(monkeypatch, ["TV Shows", "invalid", "Anime"])
     selected_library = plex_set_tracks.selectLibrary(plex)
