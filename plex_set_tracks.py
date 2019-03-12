@@ -660,7 +660,8 @@ def signIn():
     """
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
-        "Connect to server locally? (Must choose yes if signing in as managed user) [Y/n]: ")
+        "Connect to server locally? (Must choose yes if signing in as managed "
+        "user) [Y/n]: ")
 
     if localSignIn == 'y':
         # Connect to Plex server locally
@@ -811,9 +812,9 @@ def signInOnline():
     return plexServer
 
 
-###################################################################################################
+###############################################################################
 ## Start Script
-###################################################################################################
+###############################################################################
 
 
 if __name__ == "__main__":
@@ -835,17 +836,17 @@ if __name__ == "__main__":
         seasons = selectSeasons(show)
 
         # Print all seasons we'll modify
-        print("Adjusting audio & subtitle settings for Season%s %s of '%s'." % (
-            "s" if len(seasons) > 1 else "", seasonsToString(seasons),
-            show.title))
+        print("Adjusting audio & subtitle settings for Season%s %s of '%s'."
+              % ("s" if len(seasons) > 1 else "", seasonsToString(seasons),
+                 show.title))
 
         # Print audio & subtitle streams for first episode
         episode = show.season(seasons[0]).episodes()[0]
         printStreams(episode)
 
-        # Display settings for another episode?
+        # Continuously display episodes until user chooses not to
         displayingEpisodes = True
-        while displayingEpisodes:  # Continuously display episodes until user chooses not to
+        while displayingEpisodes:
             # Display another episode?
             displayEpisode = getYesOrNoFromUser(
                 "Display settings for another episode? [Y/n]: ")
@@ -858,7 +859,8 @@ if __name__ == "__main__":
 
                 # Print episode settings
                 try:
-                    episode = show.episode(season=seasonNum, episode=episodeNum)
+                    episode = show.episode(season=seasonNum,
+                                           episode=episodeNum)
                 except (BadRequest, NotFound):
                     print("S%02dE%02d of '%s' is not in your library." % (
                         seasonNum, episodeNum, show.title))
@@ -899,19 +901,18 @@ if __name__ == "__main__":
             # Print audio stream template
             if adjustAudio == 'y':
                 newAudio = episodeStreams.getStreamFromIndex(audioIndex)
-                print(
-                    "\tAudio | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-                        newAudio.title, newAudio.languageCode, newAudio.codec,
-                        newAudio.audioChannelLayout))
+                print("\tAudio | Title: %s | Language: %s | "
+                      "Codec: %s | Channels: %s"
+                      % (newAudio.title, newAudio.languageCode,
+                         newAudio.codec, newAudio.audioChannelLayout))
 
             # Print subtitle stream template
             if adjustSubtitles == 'y' and not resetSubtitles:
                 newSubtitle = episodeStreams.getStreamFromIndex(subIndex)
-                print(
-                    "\tSubtitles | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-                        newSubtitle.title, newSubtitle.languageCode,
-                        newSubtitle.codec,
-                        newSubtitle.forced))
+                print("\tSubtitles | Title: %s | Language: %s | Format: %s | "
+                      "Forced: %s"
+                      % (newSubtitle.title, newSubtitle.languageCode,
+                         newSubtitle.codec, newSubtitle.forced))
             elif adjustSubtitles == 'y' and resetSubtitles:
                 print("\tSubtitles | Disabled")
 
@@ -988,8 +989,8 @@ if __name__ == "__main__":
                                 printSuccess(episode, newAudio)
                             else:
                                 print(
-                                    "No audio matches found for '%s'" % episodeToString(
-                                        episode))
+                                    "No audio matches found for '%s'" %
+                                    episodeToString(episode))
 
                         # Reset subtitles if user chose to
                         if adjustSubtitles == 'y' and resetSubtitles:
@@ -1000,7 +1001,8 @@ if __name__ == "__main__":
                         elif adjustSubtitles == 'y':
 
                             # Get closest match from template subtitle
-                            newSubtitle = matchSubtitles(part, subtitleTemplate)
+                            newSubtitle = matchSubtitles(
+                                part, subtitleTemplate)
 
                             if newSubtitle:
                                 # Set subtitle as default
@@ -1010,8 +1012,8 @@ if __name__ == "__main__":
                                 printSuccess(episode, newSubtitle)
                             else:
                                 print(
-                                    "No subtitle matches found for '%s'" % episodeToString(
-                                        episode))
+                                    "No subtitle matches found for '%s'" %
+                                    episodeToString(episode))
 
         # Completed!
         newShow = getYesOrNoFromUser(
