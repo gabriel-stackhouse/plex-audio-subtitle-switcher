@@ -19,20 +19,21 @@ except ImportError:
         import pyreadline as readline
 
 
-###################################################################################################
+###############################################################################
 ## Classes
-###################################################################################################
+###############################################################################
 
 
 class AudioStreamInfo:
     """ Container class to hold info about an AudioStream
 
         Attributes:
-            allStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream` in combined
-                AudioStream + SubtitleStream list.
+            allStreamsIndex (int): Index of this
+                :class:`~plexapi.media.AudioStream` in combined AudioStream +
+                SubtitleStream list.
             audioChannelLayout (str): Audio channel layout (ex: 5.1(side)).
-            audioStreamsIndex (int): Index of this :class:`~plexapi.media.AudioStream`
-                in MediaPart.audioStreams()
+            audioStreamsIndex (int): Index of this
+                :class:`~plexapi.media.AudioStream` in MediaPart.audioStreams()
             codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
             languageCode (str): Ascii code for language (ex: eng, tha).
             title (str): Title of the audio stream.
@@ -49,19 +50,21 @@ class AudioStreamInfo:
 
 
 class OrganizedStreams:
-    """ Container class that stores AudioStreams and SubtitleStreams while allowing for
-        additional organizational functionality.
+    """ Container class that stores AudioStreams and SubtitleStreams while
+        allowing for additional organizational functionality.
 
         Attributes:
-            audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of all AudioStreams
-                in MediaPart
-            externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all
-                SubtitleStreams that are located in the MediaPart externally
-            internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List of all
-                SubtitleStreams that are located in the MediaPart internally
-            part (:class:`~plexapi.media.MediaPart`): MediaPart that these streams belong to
-            subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>): List of all
-                SubtitleStreams in MediaPart
+            audioStreams (list<:class:`~plexapi.media.AudioStream`>): List of
+                all AudioStreams in MediaPart
+            externalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List
+            of all SubtitleStreams that are located in the MediaPart externally
+            internalSubs (list<:class:`~plexapi.media.SubtitleStream`>): List
+                of all SubtitleStreams that are located in the MediaPart
+                internally
+            part (:class:`~plexapi.media.MediaPart`): MediaPart that these
+                streams belong to
+            subtitleStreams (list<:class:`~plexapi.media.SubtitleStream`>):
+                List of all SubtitleStreams in MediaPart
     """
 
     def __init__(self, mediaPart):
@@ -96,21 +99,23 @@ class OrganizedStreams:
 
     def getStreamFromIndex(self, givenIndex):
         """ Return :class:`~plexapi.media.AudioStream` or
-            :class:`~plexapi.media.SubtitleStream` from a given index (1-index) """
+            :class:`~plexapi.media.SubtitleStream` from a given index (1-index)
+        """
         streams = self.allStreams()
         if givenIndex > len(streams) or givenIndex < 1:
             raise IndexError("Given index is out of range.")
         return streams[givenIndex - 1]
 
     def indexIsAudioStream(self, givenIndex):
-        """ Return True if givenIndex is the index of an :class:`~plexapi.media.AudioStream`,
-            False otherwise.
+        """ Return True if givenIndex is the index of an
+            :class:`~plexapi.media.AudioStream`, False otherwise.
         """
         return 0 < givenIndex <= len(self.audioStreams)
 
     def indexIsSubStream(self, givenIndex):
-        """ Return True if givenIndex is the index of a :class:`~plexapi.media.SubtitleStream`,
-            False otherwise. """
+        """ Return True if givenIndex is the index of a
+            :class:`~plexapi.media.SubtitleStream`, False otherwise.
+        """
         if givenIndex <= len(self.allStreams()):
             return not self.indexIsAudioStream(givenIndex)
         return False
@@ -120,15 +125,17 @@ class SubtitleStreamInfo:
     """ Container class to hold info about a SubtitleStream
 
         Attributes:
-            allStreamsIndex (int): Index of this :class:`~plexapi.media.SubtitleStream` in combined
-                AudioStream + SubtitleStream list.
+            allStreamsIndex (int): Index of this
+                :class:`~plexapi.media.SubtitleStream` in combined AudioStream
+                + SubtitleStream list.
             codec (str): Codec of the stream (ex: srt, ac3, mpeg4).
             forced (bool): True if stream is a forced subtitle.
             languageCode (str): Ascii code for language (ex: eng, tha).
-            location (str): "Internal" if subtitle is embedded in the video, "External" if it is
-                not.
-            subtitleStreamsIndex (int): Index of this :class:`~plexapi.media.SubtitleStream`
-                in MediaPart.subtitleStreams().
+            location (str): "Internal" if subtitle is embedded in the video,
+                "External" if it is not.
+            subtitleStreamsIndex (int): Index of this
+                :class:`~plexapi.media.SubtitleStream` in
+                MediaPart.subtitleStreams().
             title (str): Title of the subtitle stream.
     """
 
@@ -143,9 +150,9 @@ class SubtitleStreamInfo:
         self.title = subtitleStream.title
 
 
-###################################################################################################
+###############################################################################
 ## Functions
-###################################################################################################
+###############################################################################
 
 
 def disableAutoComplete():
@@ -192,11 +199,12 @@ def episodeToString(episode):
 
 
 def getNumFromUser(prompt):
-    """ Prompts for an integer from the user, only returning when a valid integer
-        was entered.
+    """ Prompts for an integer from the user, only returning when a valid
+        integer was entered.
 
         Parameters:
-            prompt(str): The prompt the user will be given before receiving input.
+            prompt(str): The prompt the user will be given before receiving
+            input.
     """
     while True:
         givenNum = input(prompt)
@@ -211,7 +219,8 @@ def getYesOrNoFromUser(prompt):
     """ Prompts user for a 'y' or 'n' response, then validates.
 
         Parameters:
-            prompt(str): The prompt the user will be given before receiving input.
+            prompt(str): The prompt the user will be given before receiving
+            input.
     """
     while True:
         givenInput = input(prompt).lower()
@@ -222,14 +231,14 @@ def getYesOrNoFromUser(prompt):
 
 
 def matchAudio(episodePart, template):
-    """ Returns the :class:`~plexapi.media.AudioStream` from the given MediaPart that is
-        the closest match to the given template.
+    """ Returns the :class:`~plexapi.media.AudioStream` from the given
+        MediaPart that is the closest match to the given template.
 
         Parameters:
-            episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose AudioStreams will
-                be parsed to find the closest match.
-            template(AudioStreamInfo): Info of an AudioStream that will act as a template
-                for matching a stream from episodePart.
+            episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose
+                AudioStreams will be parsed to find the closest match.
+            template(AudioStreamInfo): Info of an AudioStream that will act as
+                a template for matching a stream from episodePart.
     """
 
     # Get episode streams
@@ -273,14 +282,14 @@ def matchAudio(episodePart, template):
 
 
 def matchSubtitles(episodePart, template):
-    """ Returns the :class:`~plexapi.media.SubtitleStream` from the given MediaPart that is
-        the closest match to the given template.
+    """ Returns the :class:`~plexapi.media.SubtitleStream` from the given
+        MediaPart that is the closest match to the given template.
 
         Parameters:
-            episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose AudioStreams will
-                be parsed to find the closest match.
-            template(SubtitleStreamInfo): Info of a SubtitleStream that will act as a template
-                for matching a stream from episodePart.
+            episodePart(:class:`~plexapi.media.MediaPart`): MediaPart whose
+                AudioStreams will be parsed to find the closest match.
+            template(SubtitleStreamInfo): Info of a SubtitleStream that will
+                act as a template for matching a stream from episodePart.
     """
 
     # Get episode streams
@@ -293,7 +302,8 @@ def matchSubtitles(episodePart, template):
 
     for i, stream in enumerate(subtitleStreams, 1):
 
-        # If title and language code match, SubtitleStream automatically matches
+        # If title and language code match, SubtitleStream automatically
+        # matches
         if (stream.title and stream.title == template.title and
                 stream.languageCode == template.languageCode):
             return stream
@@ -335,7 +345,8 @@ def printResetSubSuccess(episode):
     """ Prints a success message when subtitles are reset.
 
         Parameters:
-            episode(:class:`plexapi.video.Episode`): The episode whose subtitles are reset.
+            episode(:class:`plexapi.video.Episode`): The episode whose
+                subtitles are reset.
     """
     print("Reset subtitles for '%s'" % episodeToString(episode))
 
@@ -344,8 +355,8 @@ def printStreams(episode):
     """ Given an episode, prints all AudioStreams and SubtitleStreams.
 
         Parameters:
-            episode(:class:`~plexapi.video.Episode`): The episode whose MediaPartStreams will be
-                printed.
+            episode(:class:`~plexapi.video.Episode`): The episode whose
+                MediaPartStreams will be printed.
     """
     # Get audio & subtitle streams
     episode.reload()
@@ -354,19 +365,16 @@ def printStreams(episode):
 
     # Print audio streams
     count = 1
-    print("\nAudio & subtitle settings for '%s %s':\n" % (episode.show().title,
-                                                          episodeToString(
-                                                              episode)))
+    print("\nAudio & subtitle settings for '%s %s':\n" % (
+        episode.show().title, episodeToString(episode)))
     print("Audio:\n")
     for stream in streams.audioStreams:
         selected = ""
         if stream.selected:
             selected = "*"
-        print(
-            "\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s" % (
-                count, selected, stream.title, stream.languageCode,
-                stream.codec,
-                stream.audioChannelLayout))
+        print("\t[%d%s] | Title: %s | Language: %s | Codec: %s | Channels: %s"
+              % (count, selected, stream.title, stream.languageCode,
+                 stream.codec, stream.audioChannelLayout))
         count += 1
     print("\n\t* = Currently enabled track.\n")
 
@@ -388,21 +396,21 @@ def printStreams(episode):
 
 
 def printSubtitles(streams, startIndex=1):
-    """ Given a list of SubtitleStreams, print their info. Index starts at startIndex, and
-        function returns the last index used + 1.
+    """ Given a list of SubtitleStreams, print their info. Index starts at
+        startIndex, and function returns the last index used + 1.
 
         Parameters:
-            streams(list<:class:`~plexapi.media.SubtitleStream`>): SubtitleStreams to be printsd
+            streams(list<:class:`~plexapi.media.SubtitleStream`>):
+                SubtitleStreams to be printed
             startIndex(int): Index to start at (default = 1)
     """
     for i, stream in enumerate(streams, startIndex):
         selected = ""
         if stream.selected:
             selected = "*"
-        print(
-            "\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s" % (
-                i, selected, stream.title, stream.languageCode, stream.codec,
-                stream.forced))
+        print("\t[%d%s] | Title: %s | Language: %s | Format: %s | Forced: %s"
+              % (i, selected, stream.title, stream.languageCode, stream.codec,
+                 stream.forced))
     return startIndex + len(streams)
 
 
@@ -410,8 +418,10 @@ def printSuccess(episode, newStream):
     """ Prints stream set successfully.
 
         Parameters:
-            episode(:class:`~plexapi.video.Episode`): Episode in which audio was set.
-            newStream(:class:`~plexapi.media.AudioStream`): The AudioStream that was applied.
+            episode(:class:`~plexapi.video.Episode`): Episode in which audio
+                was set.
+            newStream(:class:`~plexapi.media.AudioStream`): The AudioStream
+                that was applied.
     """
     if newStream.title:
         descriptor = "'%s' " % newStream.title
@@ -497,8 +507,8 @@ def selectSeasons(show):
         until all seasons are valid.
 
         Parameters:
-            show(:class:`~plexapi.video.Show`): The show the user will be choosing
-                seasons from.
+            show(:class:`~plexapi.video.Show`): The show the user will be
+                choosing seasons from.
     """
     allSeasonsValid = False
     while not allSeasonsValid:
@@ -514,8 +524,8 @@ def selectSeasons(show):
         print("]")
 
         # Choose seasons to modify
-        givenSeasons = input(
-            "Which season(s) should we adjust? [Comma-separated, 'all' for entire series]: ")
+        givenSeasons = input("Which season(s) should we adjust? "
+                             "[Comma-separated, 'all' for entire series]: ")
 
         # If 'all' is typed, return all seasons
         if givenSeasons == "all":
@@ -624,8 +634,8 @@ def selectSubtitles(streams):
 
 
 def seasonsToString(seasons):
-    """ Given list of season numbers, returns string of seasons ina readable format.
-        Ex: "1, 2, 4, and 5"
+    """ Given list of season numbers, returns string of seasons ina readable
+        format. Ex: "1, 2, 4, and 5"
 
         Parameters:
             seasons(list<int>): List of season numbers.
@@ -645,8 +655,8 @@ def seasonsToString(seasons):
 
 
 def signIn():
-    """ Prompts user for Plex server info, then returns a :class:`~plexapi.server.PlexServer`
-        instance.
+    """ Prompts user for Plex server info, then returns a
+        :class:`~plexapi.server.PlexServer` instance.
     """
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
@@ -660,12 +670,14 @@ def signIn():
         plexServer = signInOnline()
 
     # Signed in. Return server instance.
-    print("Signed into server '%s'." % (plexServer.friendlyName))
+    print("Signed into server '%s'." % plexServer.friendlyName)
     return plexServer
 
 
 def signInLocally():
-    """ Returns a :class:`~plexapi.server.PlexServer` by connecting through the local network."""
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting through
+        the local network.
+    """
     # Get URL and token from config.ini
     plexURL = ""
     plexToken = ""
@@ -683,10 +695,10 @@ def signInLocally():
     while not isSignedIn:
         if plexURL == '' or plexToken == '':
             # Get URL and token from user
-            plexURL = input(
-                "Input server URL [Ex. https://192.168.1.50:32400]: ")
-            plexToken = input(
-                "Input Plex access token [Info here: https://bit.ly/2p7RtOu]: ")
+            plexURL = input("Input server URL [Ex. "
+                            "https://192.168.1.50:32400]: ")
+            plexToken = input("Input Plex access token [Info here: "
+                              "https://bit.ly/2p7RtOu]: ")
 
         # Sign in
         print("Signing in...")
@@ -724,11 +736,12 @@ def signInLocally():
 
 
 def signInManagedUser(plexServer):
-    """ Prompts for a managed user, then returns a :class:`~plexapi.server.PlexServer` instance
-        for said user.
+    """ Prompts for a managed user, then returns a
+        :class:`~plexapi.server.PlexServer` instance for said user.
 
         Parameters:
-            plexServer(:class:`~plexapi.server.PlexServer`): PlexServer of the account owner.
+            plexServer(:class:`~plexapi.server.PlexServer`): PlexServer of the
+                account owner.
     """
     # Get all home users
     account = plexServer.myPlexAccount()
@@ -772,7 +785,9 @@ def signInManagedUser(plexServer):
 
 
 def signInOnline():
-    """ Returns a :class:`~plexapi.server.PlexServer` by connecting online through MyPlex."""
+    """ Returns a :class:`~plexapi.server.PlexServer` by connecting online
+        through MyPlex.
+    """
     # Attempt to sign on
     isSignedIn = False
     while not isSignedIn:
@@ -791,8 +806,8 @@ def signInOnline():
         except BadRequest:
             print("Error: Login failed. Are your credentials correct?")
         except NotFound:
-            print(
-                "Error: Server '%s' not found linked to your account." % serverName)
+            print("Error: Server '%s' not found linked to your account." %
+                  serverName)
     return plexServer
 
 
