@@ -165,7 +165,7 @@ def test_select_seasons(monkeypatch, show):
     seasonsList = plex_set_tracks.selectSeasons(show)
     assert seasonsList == [5, 3, 6]
     seasonsList = plex_set_tracks.selectSeasons(show)
-    assert seasonsList == [0, 1, 2, 3, 4, 5, 6, 7]
+    assert seasonsList == [0, 1, 2, 3, 4, 5, 6, 7, 8]
 
 
 def test_select_show(monkeypatch, library, show):
