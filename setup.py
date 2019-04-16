@@ -30,10 +30,10 @@ def getListFromFile(file, ignoreStart="#"):
 
 
 # Get dependencies for each OS
-requirements = getListFromFile("setup/requirements.txt")
-windows = getListFromFile("setup/windows.txt", "-r")
-linux = getListFromFile("setup/linux.txt", "-r")
-mac = getListFromFile("setup/mac.txt", "-r")
+requirements = getListFromFile("resources/requirements.txt")
+windows = getListFromFile("resources/windows.txt", "-r")
+linux = getListFromFile("resources/linux.txt", "-r")
+mac = getListFromFile("resources/mac.txt", "-r")
 
 # Install dependencies
 install(requirements)
@@ -46,7 +46,7 @@ if sys.platform == 'darwin':    # MacOS
 
 # Create config file
 if not os.path.isfile("config.ini"):
-    copyfile("./setup/config_template.ini", "config.ini")
+    copyfile("./resources/config_template.ini", "config.ini")
     print("Config file created")
 
 # Finished

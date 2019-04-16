@@ -688,7 +688,7 @@ def signInLocally():
         plexURL = config['LOGIN']['PLEX_URL']
         plexToken = config['LOGIN']['PLEX_TOKEN']
     except KeyError:
-        copyfile("./setup/config_template.ini", "config.ini")
+        copyfile("./resources/config_template.ini", "config.ini")
         print("Error reading config.ini. New file created.")
 
     # Attempt to sign in
