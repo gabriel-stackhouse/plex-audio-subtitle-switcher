@@ -11,7 +11,10 @@ def install(packages):
             packages(list<str>): Packages to install, in requirements.txt format
     """
     for package in packages:
-        subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+        try:
+            subprocess.check_output([sys.executable, "-m", "pip", "install", "--upgrade", package])
+        except subprocess.CalledProcessError:
+            subprocess.check_output([sys.executable, "-m", "pip", "install", "--upgrade", "--user", package])
 
 
 def getListFromFile(file, ignoreStart="#"):
