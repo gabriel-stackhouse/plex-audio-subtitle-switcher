@@ -14,6 +14,7 @@ def install(packages):
         try:
             subprocess.check_output([sys.executable, "-m", "pip", "install", "--upgrade", package])
         except subprocess.CalledProcessError:
+            print("Caught ProcessError. Trying with --user flag")
             subprocess.check_output([sys.executable, "-m", "pip", "install", "--upgrade", "--user", package])
 
 
