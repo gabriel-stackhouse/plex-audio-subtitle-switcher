@@ -1,5 +1,6 @@
-Plex Batch Audio & Subtitle Switcher
+Plex Set Tracks
 ====================================
+Batch Audio & Subtitle Switcher for Plex.
 
 Overview
 --------
