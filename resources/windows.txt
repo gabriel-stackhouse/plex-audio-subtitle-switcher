@@ -1,2 +1,2 @@
 -r requirements.txt
-pyreadline>=2.1
+pyreadline3>=3.4.1
