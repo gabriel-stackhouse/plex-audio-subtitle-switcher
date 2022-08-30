@@ -38,8 +38,8 @@ them, are relatively similar. Results may vary if modifying episodes from a wide
 spots indicated in the file. You will be prompted for this information if this step is not 
 completed.
 
-1. Run the script.  Windows: ```python plex_set_tracks.py``` or Linux/MacOS: 
-```python3 plex_set_tracks.py```.
+1. Run the script.  Windows: ```python plex-audio-subtitle-switcher.py``` or Linux/MacOS: 
+```python3 plex-audio-subtitle-switcher.py```.
 
 2. Choose whether to connect to your Plex server locally (via your Plex URL and an API token), or 
 online (via your Plex username and password).
@@ -80,7 +80,7 @@ or subtitle tracks with different language codes can be considered a match.
 
 Running Unit Tests
 ------------------
-To run tests for plex_set_tracks, you must have a Plex library that contains all seasons of Game of
+To run tests for plex-audio-subtitle-switcher, you must have a Plex library that contains all seasons of Game of
 Thrones. Additionally, 'S02E10 - Valar Morghulis', must have at least one external subtitle.
 
 First, install all additional dependencies:
@@ -100,14 +100,3 @@ Finally, run the tests:
 Optionally, skip testing online sign-in (saves about 20 seconds):
 
     pytest -rxXs tests --ignore=tests/test_online_sign_in.py
-
-Planned Feature Additions
--------------------------
-A list of planned feature upgrades, in order of priority:
-
-- [ ] Watcher to watch for new episodes of previously modified shows, switching their audio and 
-subtitle tracks on the fly.
-
-- [ ] Command-line arguments, so advanced users can bypass the prompts.
-
-- [ ] Customizable matching conditions (if there is demand).
