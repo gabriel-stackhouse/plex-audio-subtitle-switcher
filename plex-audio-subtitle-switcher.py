@@ -661,7 +661,7 @@ def signIn():
     # Sign in locally or online?
     localSignIn = getYesOrNoFromUser(
         "Connect to server locally? (Must choose yes if signing in as managed "
-        "user) [Y/n]: ")
+        "user) [y/n]: ")
 
     if localSignIn == 'y':
         # Connect to Plex server locally
@@ -728,7 +728,7 @@ def signInLocally():
     if account.subscriptionActive and account.homeSize > 1:
 
         # Sign in as managed user?
-        useManagedUser = getYesOrNoFromUser("Sign in as managed user? [Y/n]: ")
+        useManagedUser = getYesOrNoFromUser("Sign in as managed user? [y/n]: ")
 
         # If yes, sign in as managed user
         if useManagedUser == 'y':
@@ -849,7 +849,7 @@ if __name__ == "__main__":
         while displayingEpisodes:
             # Display another episode?
             displayEpisode = getYesOrNoFromUser(
-                "Display settings for another episode? [Y/n]: ")
+                "Display settings for another episode? [y/n]: ")
 
             if displayEpisode == 'y':
 
@@ -877,14 +877,14 @@ if __name__ == "__main__":
         # Get index of new audio stream from user
         audioIndex = None
         adjustAudio = getYesOrNoFromUser(
-            "Do you want to switch audio tracks? [Y/n]: ")
+            "Do you want to switch audio tracks? [y/n]: ")
         if adjustAudio == 'y':
             audioIndex = selectAudio(episodeStreams)
 
         # Get index of new subtitle stream from user
         subIndex = None
         adjustSubtitles = getYesOrNoFromUser(
-            "Do you want to switch subtitle tracks? [Y/n]: ")
+            "Do you want to switch subtitle tracks? [y/n]: ")
         if adjustSubtitles == 'y':
             subIndex = selectSubtitles(episodeStreams)
         resetSubtitles = True if subIndex is not None and subIndex < 0 \
@@ -917,7 +917,7 @@ if __name__ == "__main__":
                 print("\tSubtitles | Disabled")
 
             # Ask user whether to proceed
-            willProceed = getYesOrNoFromUser("\nProceed? [Y/n]: ")
+            willProceed = getYesOrNoFromUser("\nProceed? [y/n]: ")
             if willProceed == 'n':
                 adjustAudio = 'n'
                 adjustSubtitles = 'n'
@@ -1017,6 +1017,6 @@ if __name__ == "__main__":
 
         # Completed!
         newShow = getYesOrNoFromUser(
-            "Operations complete! Modify another show? [Y/n]: ")
+            "Operations complete! Modify another show? [y/n]: ")
         if newShow == 'n':
             settingStreams = False
