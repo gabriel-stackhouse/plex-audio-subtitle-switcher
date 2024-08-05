@@ -1,3 +1,23 @@
+## :warning: Archival Notice
+
+All great things come to an end, and so too must this project. This script has filled a
+much-needed void in Plex for myself and many others.  However, with the emergence of more 
+mature solutions and my limited time to provide ongoing support, I believe it's the right
+time to bring this project to a close.
+
+I am truly humbled by the number of people who found use in a solution that, in all honesty,
+I originally wrote just for myself.  As a programmer, there's no greater feeling than seeing
+your code used and appreciated by others.  Thank you all for your incredible support of this 
+project.
+
+I highly recommend the excellent 
+[Plex Auto Languages](https://github.com/RemiRigal/Plex-Auto-Languages)
+project, which automatically updates languages on the fly, mimicking the Netflix experience. 
+If you prefer a GUI, the equally excellent [PASTA](https://github.com/cglatot/pasta) is 
+another great option.
+
+Until next time!
+
 Plex Audio & Subtitle Switcher
 ====================================
 Batch Audio & Subtitle Switcher for Plex.
